@@ -1,8 +1,22 @@
 import express from 'express';
 const app = express();
 
-app.get('/', (_req, res) => {
-  res.send('Server is working');
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() }); //store files in memory storage
+
+//PDF Upload Route
+app.post('/api/pdf', (req, res) => {
+
+});
+
+//Audio Upload Route
+app.post('/api/audio', (req, res) => {
+
+});
+
+//Trnscription Route
+app.post('/api/process', (req, res) => {
+
 });
 
 app.listen(3000, () => {
