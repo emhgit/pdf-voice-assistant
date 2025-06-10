@@ -1,23 +1,43 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PdfView from '../PdfView/PdfView'
-import Button from '../Button/Button'
+import NavButton from '../NavButton/NavButton';
 
 const PdfUploadForm = () => {
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const file = e.target.files?.[0];
+    console.log(file);
+    if(file && file.type === 'application/pdf') {
+      const url = URL.createObjectURL(file);
+      setPdfUrl(url);
+      console.log(pdfUrl);
+    }
+  }
+
   return (
-    <form>
+    <div>
       <div>
         <h1>AI PDF Voice Assistant</h1>
       </div>
+
       <div>
-        <PdfView />
-      </div>
-      <div>
-        <Button title="Previous" href={null} />
-        <Button title="next" href={null} />
+        <form>
+          <input type="file" onChange={handleFileChange} />
+        </form>
       </div>
 
-    </form>
-  )
-}
+      <div>
+        <PdfView url={pdfUrl ?? undefined} />
+      </div>
 
-export default PdfUploadForm
+      <div>
+        <NavButton title="Previous" href={undefined} />
+        <NavButton title="Next" href={undefined} />
+      </div>
+    </div>
+  );
+};
+
+export default PdfUploadForm;
