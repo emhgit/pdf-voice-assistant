@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
-import PdfView from '../PdfView/PdfView'
-import NavButton from '../NavButton/NavButton';
+import React, { useState } from "react";
+import PdfView from "../PdfView/PdfView";
+import NavButton from "../NavButton/NavButton";
 
 const PdfUploadForm = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
@@ -9,12 +9,16 @@ const PdfUploadForm = () => {
     e.preventDefault();
     const file = e.target.files?.[0];
     console.log(file);
-    if(file && file.type === 'application/pdf') {
+    if (file && file.type === "application/pdf") {
       const url = URL.createObjectURL(file);
       setPdfUrl(url);
       console.log(pdfUrl);
     }
-  }
+  };
+
+  const handleFormSubmit = (e: any) => {
+    //make post request to backend
+  };
 
   return (
     <div>
@@ -23,8 +27,14 @@ const PdfUploadForm = () => {
       </div>
 
       <div>
-        <form>
-          <input type="file" onChange={handleFileChange} />
+        <form onSubmit={handleFormSubmit}>
+          <fieldset>
+            <input type="file" onChange={handleFileChange} />
+          </fieldset>
+
+          <fieldset>
+            <button type="submit">Submit</button>
+          </fieldset>
         </form>
       </div>
 
@@ -33,8 +43,7 @@ const PdfUploadForm = () => {
       </div>
 
       <div>
-        <NavButton title="Previous" href={undefined} />
-        <NavButton title="Next" href={undefined} />
+        <NavButton title="Next" href={"audio-upload-page"} />
       </div>
     </div>
   );

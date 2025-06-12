@@ -1,18 +1,16 @@
-import React from 'react'
+import { Link } from "react-router-dom";
 
 type NavButtonProps = {
-    title: string;
-    href: string | undefined;
+  title: string;
+  href: string | undefined;
 };
 
-const NavButton = (props : NavButtonProps) => {
+const NavButton = (props: NavButtonProps) => {
   return (
     <button>
-      <a href={props.href}>
-        {props.title}
-      </a>
+      <Link to={"/" + props.href}>{props.title}</Link>
     </button>
   );
-}
+};
 
-export default NavButton
+export default NavButton;

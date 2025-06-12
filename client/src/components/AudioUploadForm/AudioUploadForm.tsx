@@ -1,29 +1,28 @@
-import React from 'react'
-import MicRecorder from './MicRecorder/MicRecorder'
-import AudioTranscribeButton from './AudioTranscribeButton/AudioTranscribeButton'
-import NavButton from '../NavButton/NavButton';
+import MicRecorder from "./MicRecorder/MicRecorder";
+import AudioTranscribeButton from "./AudioTranscribeButton/AudioTranscribeButton";
+import NavButton from "../NavButton/NavButton";
 
 const AudioUploadForm = () => {
   return (
     <div>
-        <div>
-          <h1>Record Your Instructions</h1>
-        </div>
-        
-        <div>
-          <MicRecorder />
-        </div>
+      <div>
+        <h1>Record Your Instructions</h1>
+      </div>
 
-        <div>
-          <AudioTranscribeButton />
-        </div>
+      <div>
+        <MicRecorder />
+      </div>
 
-        <div>
-          <NavButton title="Previous" href={undefined} />
-          <NavButton title="Next" href={undefined} />
+      <div>
+        <AudioTranscribeButton />
+      </div>
+
+      <div>
+        <NavButton title="Previous" href={""} />
+        <NavButton title="Next" href={"transcription-page"} />
       </div>
     </div>
   );
-}
+};
 
-export default AudioUploadForm
+export default AudioUploadForm;
