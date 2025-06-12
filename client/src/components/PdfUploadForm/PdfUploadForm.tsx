@@ -21,7 +21,7 @@ const PdfUploadForm = () => {
   };
 
   return (
-    <div>
+    <div className="flex flex-col ">
       <div>
         <h1>AI PDF Voice Assistant</h1>
       </div>
