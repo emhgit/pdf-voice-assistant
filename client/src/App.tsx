@@ -1,4 +1,3 @@
-import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import PdfUploadPage from "./pages/PdfUploadPage";
 import AudioUploadPage from "./pages/AudioUploadPage";

@@ -17,7 +17,7 @@ const AudioUploadForm = () => {
         <AudioTranscribeButton />
       </div>
 
-      <div>
+      <div className="flex justify-between">
         <NavButton title="Previous" href={""} />
         <NavButton title="Next" href={"transcription-page"} />
       </div>

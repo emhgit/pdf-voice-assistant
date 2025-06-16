@@ -115,7 +115,12 @@ app.use(validateSessionId);
 app.get("/api/pdf-fields", (req, res) => {});
 
 //Audio Upload Route
-app.post("/api/audio", (req, res) => {});
+app.post("/api/audio", (req, res) => {
+  try {
+  } catch (e) {
+    console.error(e);
+  }
+});
 
 //get audio transcription
 app.get("/api/transcription", (req, res) => {});

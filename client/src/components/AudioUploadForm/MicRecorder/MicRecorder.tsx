@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 const MicRecorder = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -33,16 +33,26 @@ const MicRecorder = () => {
     <div>
       {audioURL && <audio controls src={audioURL} />}
 
-      <div>
-        <button id="startBtn" onClick={handleStartBtnClick}>
-          Start Recording
-        </button>
-      </div>
+      <div className="flex justify-between m-4">
+        <div>
+          <button
+            id="startBtn"
+            className="bg-green-500 p-3 rounded-md font-bold"
+            onClick={handleStartBtnClick}
+          >
+            Start Recording
+          </button>
+        </div>
 
-      <div>
-        <button id="endBtn" onClick={handleEndBtnClick}>
-          End Recording
-        </button>
+        <div>
+          <button
+            id="endBtn"
+            className="bg-red-600 p-3 rounded-md font-bold"
+            onClick={handleEndBtnClick}
+          >
+            End Recording
+          </button>
+        </div>
       </div>
     </div>
   );
