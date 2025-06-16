@@ -3,11 +3,11 @@ import PdfView from "../PdfView/PdfView";
 import NavButton from "../NavButton/NavButton";
 import type { PdfUploadFormResponse } from "../../../../shared/src/types";
 import { usePdfContext } from "../../context/PdfContext";
+import { canNavigate } from "../../utils/canNavigate";
 
 const PdfUploadForm = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const { pdfFile, setPdfFile } = usePdfContext();
-  const [formFilled, setFormFilled] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -40,7 +40,6 @@ const PdfUploadForm = () => {
       const pdfUploadFormResponse: PdfUploadFormResponse = await res.json();
       console.log("Upload success:", pdfUploadFormResponse);
       localStorage.setItem("sessionToken", pdfUploadFormResponse.sessionId);
-      setFormFilled(true);
     } catch (err) {
       console.error(err);
     }
@@ -69,7 +68,19 @@ const PdfUploadForm = () => {
       </div>
 
       <div>
-        <NavButton title="Next" href={formFilled ? "audio-upload-page" : ""} />
+        <NavButton
+          title="Next"
+          href={
+            canNavigate(
+              localStorage.getItem("sessionToken"),
+              (sessionToken) => {
+                return sessionToken ? true : false;
+              }
+            )
+              ? "audio-upload-page"
+              : ""
+          }
+        />
       </div>
     </div>
   );
