@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import PdfView from "../PdfView/PdfView";
 import NavButton from "../NavButton/NavButton";
+import type { PdfUploadFormResponse } from "../../../../shared/src/types";
 
 const PdfUploadForm = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
@@ -34,8 +35,9 @@ const PdfUploadForm = () => {
         throw new Error("Upload failed");
       }
 
-      const data = await res.json();
-      console.log("Upload success:", data);
+      const pdfUploadFormResponse: PdfUploadFormResponse = await res.json();
+      console.log("Upload success:", pdfUploadFormResponse);
+      localStorage.setItem("sessionToken", pdfUploadFormResponse.sessionId);
     } catch (err) {
       console.error(err);
     }

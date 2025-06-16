@@ -25,3 +25,9 @@ export type Transcription = {
 export type ExtractedFormData = {
   [fieldName: string]: string;
 };
+
+export type PdfUploadFormResponse = {
+  message: string;
+  sessionId: string;
+  pdfMetadata: PdfMetadata;
+};

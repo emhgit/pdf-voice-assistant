@@ -1,6 +1,9 @@
 import express from "express";
 import { Request } from "express";
-import { PdfMetadata } from "../../shared/src/types";
+import type {
+  PdfMetadata,
+  PdfUploadFormResponse,
+} from "../../shared/src/types";
 
 // Use Express.Multer.File for Multer file typing
 type MulterFile = Express.Multer.File;
