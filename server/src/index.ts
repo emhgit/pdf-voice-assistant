@@ -11,9 +11,20 @@ const port = 2008;
 const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() }); //store files in memory storage
 
+// TYPES/INTERFACES
 interface MulterRequest extends Request {
   file: MulterFile;
 }
+
+const sessionStore = new Map<
+  String,
+  {
+    pdfBuffer: Buffer;
+    audioBuffer?: Buffer;
+    transcription?: string;
+    extractedData?: object;
+  }
+>();
 
 //CORS Middleware
 app.use(cors());
@@ -37,17 +48,24 @@ app.post(
         return;
       }
 
+      // Generate a UUID for the session id to store in the session store
+      const sessionId = crypto.randomUUID();
+      sessionStore.set(sessionId, { pdfBuffer: file.buffer });
+
       // Generate a UUID for the session token
       const timestamp = Date.now();
 
-      //Create Pdf Metadata
-      const pdfMetadata: PdfMetadata = {};
-      // Generate a UUID for the session id
-      const sessionId = crypto.randomUUID();
+      // Create Pdf Metadata
+      const pdfMetadata: PdfMetadata = {
+        fileName: file.filename,
+        fileSize: file.size,
+        uploadTimestamp: timestamp,
+      };
 
       res.status(200).json({
         message: "PDF uploaded successfully",
         sessionId: sessionId,
+        pdfMetadata,
       });
     } catch (error) {
       console.error("Error processing PDF upload:", error);
