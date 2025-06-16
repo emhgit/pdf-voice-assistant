@@ -4,6 +4,7 @@ import type {
   PdfMetadata,
   PdfUploadFormResponse,
 } from "../../shared/src/types";
+import { getPdfFieldNames } from "./utils";
 
 // Use Express.Multer.File for Multer file typing
 type MulterFile = Express.Multer.File;
@@ -20,9 +21,10 @@ interface MulterRequest extends Request {
 }
 
 const sessionStore = new Map<
-  String,
+  string,
   {
     pdfBuffer: Buffer;
+    pdfFieldNames: { name: string; type: string; isEmpty: boolean }[];
     audioBuffer?: Buffer;
     transcription?: string;
     extractedData?: object;
@@ -36,7 +38,7 @@ app.use(cors());
 app.post(
   "/api/pdf",
   upload.single("pdf"),
-  (req: express.Request, res: express.Response) => {
+  async (req: express.Request, res: express.Response) => {
     try {
       const file = (req as MulterRequest).file;
 
@@ -53,7 +55,11 @@ app.post(
 
       // Generate a UUID for the session id to store in the session store
       const sessionId = crypto.randomUUID();
-      sessionStore.set(sessionId, { pdfBuffer: file.buffer });
+      const fieldNames = await getPdfFieldNames(file.buffer);
+      sessionStore.set(sessionId, {
+        pdfBuffer: file.buffer,
+        pdfFieldNames: fieldNames,
+      });
 
       // Generate a UUID for the session token
       const timestamp = Date.now();
