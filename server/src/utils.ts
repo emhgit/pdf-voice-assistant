@@ -1,12 +1,12 @@
 import { PDFDocument } from "pdf-lib";
 import { PdfField } from "../../shared/src/types";
 
-export const getPdfFieldNames = async (pdfBuffer: Buffer) => {
+export const getPdfFields = async (pdfBuffer: Buffer) => {
   const pdfDoc = await PDFDocument.load(pdfBuffer);
   const form = pdfDoc.getForm();
   const formFields = form.getFields().map((field) => {
     const name = field.getName();
-    const type = field.constructor.name.replace("Field", "").toUpperCase(); // e.g., TextField -> TEXT
+    const type = field.constructor.name;
     let value = "";
     let isEmpty = true;
 

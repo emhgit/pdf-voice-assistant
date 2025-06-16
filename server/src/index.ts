@@ -4,7 +4,16 @@ import type {
   PdfMetadata,
   PdfUploadFormResponse,
 } from "../../shared/src/types";
-import { getPdfFieldNames } from "./utils";
+import { getPdfFields } from "./utils";
+
+// Extend Express Request interface to include sessionToken
+declare global {
+  namespace Express {
+    interface Request {
+      sessionToken?: string;
+    }
+  }
+}
 
 // Use Express.Multer.File for Multer file typing
 type MulterFile = Express.Multer.File;
@@ -25,7 +34,7 @@ const sessionStore = new Map<
   string,
   {
     pdfBuffer: Buffer;
-    pdfFieldNames?: { name: string; type: string; isEmpty: boolean }[];
+    pdfFields?: { name: string; type: string; isEmpty: boolean }[];
     audioBuffer?: Buffer;
     transcription?: string;
   }
@@ -55,11 +64,11 @@ app.post(
 
       // Generate a UUID for the session id to store in the session store
       const sessionId = crypto.randomUUID();
-      const fieldNames = await getPdfFieldNames(file.buffer);
-      console.log("fieldNames:" + fieldNames);
+      const fields = await getPdfFields(file.buffer);
+      console.log("fieldNames:" + fields);
       sessionStore.set(sessionId, {
         pdfBuffer: file.buffer,
-        pdfFieldNames: fieldNames,
+        pdfFields: fields,
       });
 
       // Generate a UUID for the session token
@@ -84,6 +93,24 @@ app.post(
   }
 );
 
+// Session ID validation middleware (activates after /api/pdf POST)
+const validateSessionId: express.RequestHandler = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    res.status(401).json({ error: "Missing or invalid token" });
+    return;
+  }
+
+  const token = authHeader.split(" ")[1];
+  req.sessionToken = token;
+
+  next();
+};
+
+// Apply the middleware to all routes after /api/pdf POST
+app.use(validateSessionId);
+
 //Return extracted fields
 app.get("/api/pdf-fields", (req, res) => {});
 
@@ -92,6 +119,12 @@ app.post("/api/audio", (req, res) => {});
 
 //get audio transcription
 app.get("/api/transcription", (req, res) => {});
+
+//get extracted key-value pairs
+app.get("/api/extracted", (req, res) => {});
+
+//update extracted key-value pairs
+app.put("/api/extracted", (req, res) => {});
 
 //Get final pdf Route
 app.get("/api/download", (req, res) => {});
