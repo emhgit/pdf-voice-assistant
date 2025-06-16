@@ -6,6 +6,7 @@ import type { PdfUploadFormResponse } from "../../../../shared/src/types";
 const PdfUploadForm = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [pdfFile, setPdfFile] = useState<File | undefined>(undefined);
+  const [formFilled, setFormFilled] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -38,6 +39,7 @@ const PdfUploadForm = () => {
       const pdfUploadFormResponse: PdfUploadFormResponse = await res.json();
       console.log("Upload success:", pdfUploadFormResponse);
       localStorage.setItem("sessionToken", pdfUploadFormResponse.sessionId);
+      setFormFilled(true);
     } catch (err) {
       console.error(err);
     }
@@ -52,7 +54,7 @@ const PdfUploadForm = () => {
       <div>
         <form onSubmit={handleSubmit} className="flex flex-col">
           <fieldset>
-            <input type="file" onChange={handleFileChange} />
+            <input type="file" onChange={handleFileChange} required />
           </fieldset>
 
           <fieldset>
@@ -66,7 +68,7 @@ const PdfUploadForm = () => {
       </div>
 
       <div>
-        <NavButton title="Next" href={"audio-upload-page"} />
+        <NavButton title="Next" href={formFilled ? "audio-upload-page" : ""} />
       </div>
     </div>
   );

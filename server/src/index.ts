@@ -20,14 +20,14 @@ interface MulterRequest extends Request {
   file: MulterFile;
 }
 
+//SESSION STORE
 const sessionStore = new Map<
   string,
   {
     pdfBuffer: Buffer;
-    pdfFieldNames: { name: string; type: string; isEmpty: boolean }[];
+    pdfFieldNames?: { name: string; type: string; isEmpty: boolean }[];
     audioBuffer?: Buffer;
     transcription?: string;
-    extractedData?: object;
   }
 >();
 
@@ -84,11 +84,17 @@ app.post(
   }
 );
 
+//Return extracted fields
+app.get("/api/pdf-fields", (req, res) => {});
+
 //Audio Upload Route
 app.post("/api/audio", (req, res) => {});
 
-//Trnscription Route
-app.post("/api/process", (req, res) => {});
+//get audio transcription
+app.get("/api/transcription", (req, res) => {});
+
+//Get final pdf Route
+app.get("/api/download", (req, res) => {});
 
 //npx ts-node index.ts to start
 app.listen(port, () => {
