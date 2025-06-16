@@ -56,6 +56,7 @@ app.post(
       // Generate a UUID for the session id to store in the session store
       const sessionId = crypto.randomUUID();
       const fieldNames = await getPdfFieldNames(file.buffer);
+      console.log("fieldNames:" + fieldNames);
       sessionStore.set(sessionId, {
         pdfBuffer: file.buffer,
         pdfFieldNames: fieldNames,

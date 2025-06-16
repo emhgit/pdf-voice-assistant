@@ -6,7 +6,6 @@ export const getPdfFieldNames = async (pdfBuffer: Buffer) => {
   const form = pdfDoc.getForm();
   const formFields = form.getFields().map((field) => {
     const name = field.getName();
-    console.log(name);
     const type = field.constructor.name.replace("Field", "").toUpperCase(); // e.g., TextField -> TEXT
     let value = "";
     let isEmpty = true;

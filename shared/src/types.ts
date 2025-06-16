@@ -14,6 +14,7 @@ export enum pdfFieldTypes {
 export type PdfField = {
   name: string;
   type: pdfFieldTypes;
+  isEmpty: boolean;
 };
 
 export type Transcription = {
