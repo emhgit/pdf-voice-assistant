@@ -1,18 +1,12 @@
 import express from "express";
-import fs from "fs";
 import { Request } from "express";
-import path from "path";
+import { PdfMetadata } from "../../shared/src/types";
+
 // Use Express.Multer.File for Multer file typing
 type MulterFile = Express.Multer.File;
 const app = express();
 const cors = require("cors");
 const port = 2008;
-
-// Create uploads directory if it doesn't exist
-const uploadsDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
 
 const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() }); //store files in memory storage
@@ -31,7 +25,7 @@ app.post(
   (req: express.Request, res: express.Response) => {
     try {
       const file = (req as MulterRequest).file;
-      
+
       if (!file) {
         res.status(400).json({ error: "No file uploaded" });
         return;
@@ -43,19 +37,17 @@ app.post(
         return;
       }
 
-      // Generate a unique filename using timestamp and original filename
+      // Generate a UUID for the session token
       const timestamp = Date.now();
-      const uniqueFilename = `${timestamp}-${file.originalname}`;
-      const filePath = path.join(uploadsDir, uniqueFilename);
 
-      // Save the file to the filesystem
-      fs.writeFileSync(filePath, file.buffer);
-      
+      //Create Pdf Metadata
+      const pdfMetadata: PdfMetadata = {};
+      // Generate a UUID for the session id
+      const sessionId = crypto.randomUUID();
+
       res.status(200).json({
         message: "PDF uploaded successfully",
-        filename: uniqueFilename,
-        size: file.size,
-        path: filePath
+        sessionId: sessionId,
       });
     } catch (error) {
       console.error("Error processing PDF upload:", error);
