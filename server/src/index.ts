@@ -1,9 +1,6 @@
 import express from "express";
 import { Request } from "express";
-import type {
-  PdfMetadata,
-  PdfUploadFormResponse,
-} from "../../shared/src/types";
+import type { PdfMetadata } from "../../shared/src/types";
 import { getPdfFields } from "./utils";
 
 // Extend Express Request interface to include sessionToken
@@ -117,6 +114,7 @@ app.get("/api/pdf-fields", (req, res) => {});
 //Audio Upload Route
 app.post("/api/audio", (req, res) => {
   try {
+    //const audioBlob = req.
   } catch (e) {
     console.error(e);
   }

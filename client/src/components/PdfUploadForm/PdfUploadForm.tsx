@@ -2,12 +2,11 @@ import React, { useState } from "react";
 import PdfView from "../PdfView/PdfView";
 import NavButton from "../NavButton/NavButton";
 import type { PdfUploadFormResponse } from "../../../../shared/src/types";
-import { usePdfContext } from "../../context/PdfContext";
 import { canNavigate } from "../../utils/canNavigate";
 
 const PdfUploadForm = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const { pdfFile, setPdfFile } = usePdfContext();
+  const [pdfFile, setPdfFile] = useState<File | null>();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
