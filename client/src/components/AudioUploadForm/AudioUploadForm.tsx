@@ -18,6 +18,8 @@ const AudioUploadForm = () => {
     }
   }, [pdfFile, navigate]);
 
+  const { audioBlob } = useAudioContext();
+
   return (
     <div>
       <div>
@@ -34,7 +36,7 @@ const AudioUploadForm = () => {
 
       <div className="flex justify-between">
         <NavButton title="Previous" href={""} />
-        <NavButton title="Next" href={"transcription-page"} />
+        <NavButton title="Next" href={canNavigate(audioBlob, (blob) => blob ? true : false) ? "transcription-page" : ""} />
       </div>
     </div>
   );
