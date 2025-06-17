@@ -1,6 +1,7 @@
 import MicRecorder from "./MicRecorder/MicRecorder";
 import AudioTranscribeButton from "./AudioTranscribeButton/AudioTranscribeButton";
 import NavButton from "../NavButton/NavButton";
+import { canNavigate } from "../../utils/canNavigate";
 
 const AudioUploadForm = () => {
   return (

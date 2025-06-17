@@ -2,26 +2,28 @@ import { useRef, useState } from "react";
 
 const MicRecorder = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
+  const audioChunksRef = useRef<Blob[]>([]);
   const [audioURL, setAudioURL] = useState<string | null>(null);
 
   const handleStartBtnClick = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     const mediaRecorder = new MediaRecorder(stream);
 
+    audioChunksRef.current = [];
+
     mediaRecorder.ondataavailable = (event: BlobEvent) => {
-      setAudioChunks((prev) => [...prev, event.data]);
+      audioChunksRef.current.push(event.data);
     };
 
     mediaRecorder.onstop = () => {
-      const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+      const audioBlob = new Blob(audioChunksRef.current, {
+        type: "audio/webm",
+      });
       const url = URL.createObjectURL(audioBlob);
       setAudioURL(url);
-      setAudioChunks([]); // clear for next recording
     };
 
     mediaRecorderRef.current = mediaRecorder;
-    setAudioChunks([]);
     mediaRecorder.start();
   };
 
