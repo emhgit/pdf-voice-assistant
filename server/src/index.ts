@@ -115,10 +115,39 @@ app.use(validateSessionId);
 app.get("/api/pdf-fields", (req, res) => {});
 
 //Audio Upload Route
-app.post("/api/audio", (req, res) => {
+app.post("/api/audio", upload.single("audio"), async (req: express.Request, res: express.Response) => {
   try {
-  } catch (e) {
-    console.error(e);
+    const file = (req as MulterRequest).file;
+    const sessionToken = req.sessionToken;
+
+    if (!file) {
+      res.status(400).json({ error: "No audio file uploaded" });
+      return;
+    }
+
+    if (!sessionToken) {
+      res.status(401).json({ error: "No session token provided" });
+      return;
+    }
+
+    const session = sessionStore.get(sessionToken);
+    if (!session) {
+      res.status(404).json({ error: "Session not found" });
+      return;
+    }
+
+    // Store the audio buffer in the session
+    session.audioBuffer = file.buffer;
+
+    res.status(200).json({
+      message: "Audio uploaded successfully",
+      fileName: file.originalname,
+      fileSize: file.size,
+      mimeType: file.mimetype
+    });
+  } catch (error) {
+    console.error("Error processing audio upload:", error);
+    res.status(500).json({ error: "Failed to process audio upload" });
   }
 });
 

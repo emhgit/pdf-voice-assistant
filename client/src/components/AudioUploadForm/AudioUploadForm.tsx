@@ -5,12 +5,15 @@ import { canNavigate } from "../../utils/canNavigate";
 import { usePdfContext } from "../../context/PdfContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { useAudioContext } from "../../context/AudioContext";
 
 const AudioUploadForm = () => {
   const navigate = useNavigate();
   const { pdfFile } = usePdfContext();
+
   useEffect(() => {
     if (!pdfFile) {
+      //if no pdf file, navigate to pdf upload page
       navigate("/");
     }
   }, [pdfFile, navigate]);

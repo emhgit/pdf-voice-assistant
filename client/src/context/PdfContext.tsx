@@ -13,9 +13,34 @@ export const PdfContextProvider = ({
 }) => {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
 
-  if (localStorage.getItem("sessionToken")) {
-    useEffect(() => {});
-  }
+  useEffect(() => {
+    const sessionToken = localStorage.getItem("sessionToken");
+    
+    if (sessionToken) {
+      // Fetch the PDF file from the server
+      fetch("http://localhost:2008/api/pdf", {
+        headers: {
+          "Authorization": `Bearer ${sessionToken}`
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch PDF");
+        }
+        return response.blob();
+      })
+      .then(blob => {
+        const file = new File([blob], "document.pdf", { type: "application/pdf" });
+        setPdfFile(file);
+      })
+      .catch(error => {
+        console.error("Error fetching PDF:", error);
+        setPdfFile(null);
+      });
+    } else {
+      setPdfFile(null);
+    }
+  }, []); // Empty dependency array means this runs once on mount
 
   return (
     <PdfContext.Provider value={{ pdfFile, setPdfFile }}>
