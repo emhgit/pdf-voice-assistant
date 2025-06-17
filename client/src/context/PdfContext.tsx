@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 type PdfContextType = {
   pdfFile: File | null;
@@ -12,6 +12,10 @@ export const PdfContextProvider = ({
   children: React.ReactNode;
 }) => {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
+
+  if (localStorage.getItem("sessionToken")) {
+    useEffect(() => {});
+  }
 
   return (
     <PdfContext.Provider value={{ pdfFile, setPdfFile }}>

@@ -2,8 +2,19 @@ import MicRecorder from "./MicRecorder/MicRecorder";
 import AudioTranscribeButton from "./AudioTranscribeButton/AudioTranscribeButton";
 import NavButton from "../NavButton/NavButton";
 import { canNavigate } from "../../utils/canNavigate";
+import { usePdfContext } from "../../context/PdfContext";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const AudioUploadForm = () => {
+  const navigate = useNavigate();
+  const { pdfFile } = usePdfContext();
+  useEffect(() => {
+    if (!pdfFile) {
+      navigate("/");
+    }
+  }, [pdfFile, navigate]);
+
   return (
     <div>
       <div>
