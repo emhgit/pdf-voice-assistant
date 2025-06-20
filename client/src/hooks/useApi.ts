@@ -220,7 +220,13 @@ export const useTranscription = () => {
     fetchTranscription();
   }, [fetchTranscription]);
 
-  return { transcription: data, loading, error, refetch: fetchTranscription };
+  return {
+    transcription: data,
+    setTranscription: setData,
+    loading,
+    error,
+    refetch: fetchTranscription,
+  };
 };
 
 export const useProcessTranscription = () => {
