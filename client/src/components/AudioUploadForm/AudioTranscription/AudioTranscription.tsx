@@ -1,9 +1,5 @@
-import React from 'react'
-
 const AudioTranscription = () => {
-  return (
-    <div>AudioTranscription</div>
-  )
-}
+  return <div>AudioTranscription</div>;
+};
 
-export default AudioTranscription
+export default AudioTranscription;
