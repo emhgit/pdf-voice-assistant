@@ -4,7 +4,7 @@ import type {
   PdfMetadata,
   PdfUploadFormResponse,
 } from "../../shared/src/types";
-import { getPdfFields } from "./utils";
+import { getPdfFields, transcribeAudio } from "./utils";
 
 // Extend Express Request interface to include sessionToken
 declare global {
@@ -180,14 +180,22 @@ app.post(
       // Store the audio buffer in the session
       session.audioBuffer = file.buffer;
 
+      // Transcribe audio and store transcription
+      let transcription = null;
+      try {
+        transcription = await transcribeAudio(file.buffer);
+        session.transcription = transcription;
+      } catch (err) {
+        console.error("Transcription failed:", err);
+      }
+
       res.status(200).json({
         message: "Audio uploaded successfully",
         fileName: file.originalname,
         fileSize: file.size,
         mimeType: file.mimetype,
+        transcription,
       });
-
-      //add transcription handling
     } catch (error) {
       console.error("Error processing audio upload:", error);
       res.status(500).json({ error: "Failed to process audio upload" });

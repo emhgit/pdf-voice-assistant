@@ -30,3 +30,22 @@ export const getPdfFields = async (pdfBuffer: Buffer) => {
   });
   return formFields;
 };
+
+export const transcribeAudio = async (audioBuffer: Buffer, language?: string): Promise<string> => {
+  try {
+    const formData = new FormData();
+    formData.append("audio_file", new Blob([audioBuffer], { type: "audio/webm" }), "recording.webm");
+    const response = await fetch("http://localhost:8000/transcribe" + (language ? `?language=${encodeURIComponent(language)}` : ""), {
+      method: "POST",
+      body: formData,
+    });
+    if (!response.ok) {
+      throw new Error(`Transcription service error: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data.text;
+  } catch (error: any) {
+    console.error("Transcription error:", error);
+    throw new Error("Failed to transcribe audio");
+  }
+};
