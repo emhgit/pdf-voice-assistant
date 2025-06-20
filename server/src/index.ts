@@ -204,7 +204,19 @@ app.post(
 );
 
 //get audio transcription
-app.get("/api/transcription", (req, res) => {});
+app.get("/api/transcription", (req, res) => {
+  const sessionToken = req.sessionToken;
+  if (!sessionToken) {
+    res.status(401).json({ error: "No session token provided" });
+    return;
+  }
+  const session = sessionStore.get(sessionToken);
+  if (!session || !session.transcription) {
+    res.status(404).json({ error: "Transcription not found" });
+    return;
+  }
+  res.status(200).json({ transcription: session.transcription });
+});
 
 //get extracted key-value pairs
 app.get("/api/extracted", (req, res) => {});
