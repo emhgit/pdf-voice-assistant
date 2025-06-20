@@ -186,6 +186,8 @@ app.post(
         fileSize: file.size,
         mimeType: file.mimetype,
       });
+
+      //add transcription handling
     } catch (error) {
       console.error("Error processing audio upload:", error);
       res.status(500).json({ error: "Failed to process audio upload" });
