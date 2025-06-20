@@ -5,7 +5,7 @@ const MicRecorder = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const [audioURL, setAudioURL] = useState<string | null>(null);
-  const { audioBlob, audioLoading, audioError, uploadAudio, setAudioBlob, setTranscription, transcription } =
+  const { audioBlob, audioLoading, audioError, uploadAudio, setAudioBlob, setTranscription } =
     useAppContext();
 
   useEffect(() => {

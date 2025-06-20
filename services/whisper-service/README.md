@@ -15,3 +15,17 @@ Start the microservice:
 ```bash
 uvicorn main:app --reload --port 8000
 ```
+
+Test Microservice using CURL: 
+
+```bash
+curl -X POST "http://localhost:8000/transcribe" \
+  -F "audio_file=@path\to\your\file.wav"
+  ```
+
+OR 
+
+```bash
+curl -X POST "http://localhost:8000/transcribe" \
+  -F "audio_file=@path\to\your\file.mp3"
+  ```
