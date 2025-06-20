@@ -2,12 +2,11 @@ import React, { useState } from "react";
 import PdfView from "../PdfView/PdfView";
 import NavButton from "../NavButton/NavButton";
 import type { PdfUploadFormResponse } from "../../../../shared/src/types";
-import { usePdfContext } from "../../context/PdfContext";
-import { canNavigate } from "../../utils/canNavigate";
+import { useAppContext } from "../../context/AppContext";
 
 const PdfUploadForm = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const { pdfFile, setPdfFile } = usePdfContext();
+  const { pdfFile, pdfLoading, pdfError, uploadPdf, refetchPdf, setPdfFile } = useAppContext();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -21,25 +20,13 @@ const PdfUploadForm = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-
     if (!pdfFile) return;
-
-    const formData = new FormData();
-    formData.append("pdf", pdfFile);
-
     try {
-      const res = await fetch("http://localhost:2008/api/pdf", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) {
-        throw new Error("Upload failed");
+      const pdfUploadFormResponse: PdfUploadFormResponse = await uploadPdf(pdfFile);
+      if (pdfUploadFormResponse?.sessionId) {
+        localStorage.setItem("sessionToken", pdfUploadFormResponse.sessionId);
       }
-
-      const pdfUploadFormResponse: PdfUploadFormResponse = await res.json();
-      console.log("Upload success:", pdfUploadFormResponse);
-      localStorage.setItem("sessionToken", pdfUploadFormResponse.sessionId);
+      // Optionally refetch or update state here
     } catch (err) {
       console.error(err);
     }
@@ -71,12 +58,7 @@ const PdfUploadForm = () => {
         <NavButton
           title="Next"
           href={
-            canNavigate(
-              localStorage.getItem("sessionToken"),
-              (sessionToken) => {
-                return sessionToken ? true : false;
-              }
-            )
+            pdfLoading 
               ? "audio-upload-page"
               : ""
           }

@@ -1,25 +1,10 @@
 import MicRecorder from "./MicRecorder/MicRecorder";
 import AudioTranscribeButton from "./AudioTranscribeButton/AudioTranscribeButton";
 import NavButton from "../NavButton/NavButton";
-import { canNavigate } from "../../utils/canNavigate";
-import { usePdfContext } from "../../context/PdfContext";
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-import { useAudioContext } from "../../context/AudioContext";
+import { useAppContext } from "../../context/AppContext";
 
 const AudioUploadForm = () => {
-  const navigate = useNavigate();
-  const { pdfFile } = usePdfContext();
-
-  useEffect(() => {
-    if (!pdfFile) {
-      //if no pdf file, navigate to pdf upload page
-      navigate("/");
-    }
-  }, [pdfFile, navigate]);
-
-  const { audioBlob } = useAudioContext();
-
+  const { audioBlob, } = useAppContext();
   return (
     <div>
       <div>
@@ -36,7 +21,7 @@ const AudioUploadForm = () => {
 
       <div className="flex justify-between">
         <NavButton title="Previous" href={""} />
-        <NavButton title="Next" href={canNavigate(audioBlob, (blob) => blob ? true : false) ? "transcription-page" : ""} />
+        <NavButton title="Next" href={audioBlob ? "transcription-page" : ""} />
       </div>
     </div>
   );

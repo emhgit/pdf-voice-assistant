@@ -81,7 +81,8 @@ export const usePdfFile = () => {
     fetchPdf();
   }, [fetchPdf]);
 
-  return { pdfFile: data, loading, error, refetch: fetchPdf };
+  // Expose setData as setPdfFile for external use
+  return { pdfFile: data, loading, error, refetch: fetchPdf, setPdfFile: setData };
 };
 
 export const useUploadPdf = () => {
@@ -93,11 +94,15 @@ export const useUploadPdf = () => {
       const formData = new FormData();
       formData.append('pdf', file);
       
-      const response = await apiFetch('/upload-pdf', {
+      const response = await apiFetch('/pdf', {
         method: 'POST',
         body: formData,
       });
       
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+
       const result = await response.json();
       setLoading(false);
       return result;
@@ -134,7 +139,8 @@ export const useAudioFile = () => {
     fetchAudio();
   }, [fetchAudio]);
 
-  return { audioBlob: data, loading, error, refetch: fetchAudio };
+  // Expose setData as setAudioBlob for external use
+  return { audioBlob: data, loading, error, refetch: fetchAudio, setAudioBlob: setData };
 };
 
 export const useUploadAudio = () => {

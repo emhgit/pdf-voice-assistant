@@ -10,6 +10,7 @@ interface AppContextType {
   pdfError: string | null;
   uploadPdf: (file: File) => Promise<any>;
   refetchPdf: () => void;
+  setPdfFile: (file: File) => void;
   
   // Audio state
   audioBlob: Blob | null;
@@ -17,6 +18,7 @@ interface AppContextType {
   audioError: string | null;
   uploadAudio: (file: File) => Promise<any>;
   refetchAudio: () => void;
+  setAudioBlob: (blob: Blob) => void;
   
   // Transcription state
   transcription: any;
@@ -30,11 +32,11 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   // PDF hooks
-  const { pdfFile, loading: pdfLoading, error: pdfError, refetch: refetchPdf } = usePdfFile();
+  const { pdfFile, loading: pdfLoading, error: pdfError, refetch: refetchPdf, setPdfFile } = usePdfFile();
   const { uploadPdf } = useUploadPdf();
   
   // Audio hooks
-  const { audioBlob, loading: audioLoading, error: audioError, refetch: refetchAudio } = useAudioFile();
+  const { audioBlob, loading: audioLoading, error: audioError, refetch: refetchAudio, setAudioBlob } = useAudioFile();
   const { uploadAudio } = useUploadAudio();
   
   // Transcription hooks
@@ -48,6 +50,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     pdfError,
     uploadPdf,
     refetchPdf,
+    setPdfFile,
     
     // Audio
     audioBlob,
@@ -55,6 +58,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     audioError,
     uploadAudio,
     refetchAudio,
+    setAudioBlob,
     
     // Transcription
     transcription,
