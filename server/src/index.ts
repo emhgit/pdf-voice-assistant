@@ -37,6 +37,7 @@ const sessionStore = new Map<
     pdfFields?: { name: string; type: string; isEmpty: boolean }[];
     audioBuffer?: Buffer;
     transcription?: string;
+    extractedFields?: Record<string, string>[];
   }
 >();
 
@@ -218,16 +219,22 @@ app.get("/api/transcription", (req, res) => {
   res.status(200).json({ transcription: session.transcription });
 });
 
-//get extracted key-value pairs
+// update audio transcription
+app.put("/api/transcription", (req, res) => {});
+
+// Update extracted key-value pairs
+app.post("/api/extracted", (req, res) => {});
+
+// get extracted key-value pairs
 app.get("/api/extracted", (req, res) => {});
 
-//update extracted key-value pairs
+// update extracted key-value pairs
 app.put("/api/extracted", (req, res) => {});
 
-//Get final pdf Route
+// get finalized pdf
 app.get("/api/download", (req, res) => {});
 
-//npx ts-node index.ts to start
+// start the server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });

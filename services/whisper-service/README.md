@@ -1,6 +1,6 @@
 # Whisper AI Service
 
-This microservices uses Whisper AI to transcribe audio to text. The service is exposed at an endpoint using fastAPI. 
+This microservices uses Whisper AI to transcribe audio to text. The service is exposed at an endpoint using fastAPI.
 
 Set up the Python virtual environment and install dependencies in services/whisper-service:
 
@@ -10,22 +10,22 @@ whisper-venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Start the microservice:
+Start the microservice server:
 
 ```bash
 uvicorn main:app --reload --port 8000
 ```
 
-Test Microservice using CURL: 
+Test Microservice using CURL:
 
 ```bash
 curl -X POST "http://localhost:8000/transcribe" \
   -F "audio_file=@path\to\your\file.wav"
-  ```
+```
 
-OR 
+OR
 
 ```bash
 curl -X POST "http://localhost:8000/transcribe" \
   -F "audio_file=@path\to\your\file.mp3"
-  ```
+```
