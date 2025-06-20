@@ -1,4 +1,4 @@
-import React, { createContext, useContext, type ReactNode } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
 import { usePdfFile, useUploadPdf } from '../hooks/useApi';
 import { useAudioFile, useUploadAudio } from '../hooks/useApi';
 import { useTranscription, useProcessTranscription } from '../hooks/useApi';

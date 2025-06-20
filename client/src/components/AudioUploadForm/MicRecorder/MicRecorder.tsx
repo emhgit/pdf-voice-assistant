@@ -1,11 +1,19 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAppContext } from "../../../context/AppContext";
 
 const MicRecorder = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const [audioURL, setAudioURL] = useState<string | null>(null);
-  const { audioLoading, audioError, uploadAudio, setAudioBlob } = useAppContext();
+  const { audioBlob, audioLoading, audioError, uploadAudio, setAudioBlob } =
+    useAppContext();
+
+  useEffect(() => {
+    if (!audioBlob) return;
+
+    const url = URL.createObjectURL(audioBlob);
+    setAudioURL(url);
+  }, [audioBlob]);
 
   const handleStartBtnClick = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -25,7 +33,9 @@ const MicRecorder = () => {
       setAudioURL(url);
       setAudioBlob(blob);
       try {
-        await uploadAudio(new File([blob], "recording.webm", { type: "audio/webm" }));
+        await uploadAudio(
+          new File([blob], "recording.webm", { type: "audio/webm" })
+        );
       } catch (error) {
         console.error("Error uploading audio:", error);
       }

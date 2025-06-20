@@ -111,45 +111,87 @@ const validateSessionId: express.RequestHandler = (req, res, next) => {
 // Apply the middleware to all routes after /api/pdf POST
 app.use(validateSessionId);
 
+// GET req for the pdf buffer
+app.get("/api/pdf", (req, res) => {
+  const sessionToken = req.sessionToken;
+  if (!sessionToken) {
+    res.status(401).json({ error: "No session token provided" });
+    return;
+  }
+  const session = sessionStore.get(sessionToken);
+  if (!session || !session.pdfBuffer) {
+    res.status(404).json({ error: "PDF not found" });
+    return;
+  }
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", "attachment; filename=document.pdf");
+  res.send(session.pdfBuffer);
+});
+
+// GET req for audio blob
+app.get("/api/audio", (req, res) => {
+  const sessionToken = req.sessionToken;
+  if (!sessionToken) {
+    res.status(401).json({ error: "No session token provided" });
+    return;
+  }
+  const session = sessionStore.get(sessionToken);
+  if (!session || !session.pdfBuffer) {
+    res.status(404).json({ error: "PDF not found" });
+    return;
+  }
+  if (!session.audioBuffer) {
+    res.status(404).json({ error: "Audio not found" });
+    return;
+  }
+  res.setHeader("Content-Type", "audio/webm");
+  res.setHeader("Content-Disposition", "attachment; filename=audio.webm");
+  res.send(session.audioBuffer);
+});
+
 //Return extracted fields
 app.get("/api/pdf-fields", (req, res) => {});
 
 //Audio Upload Route
-app.post("/api/audio", upload.single("audio"), async (req: express.Request, res: express.Response) => {
-  try {
-    const file = (req as MulterRequest).file;
-    const sessionToken = req.sessionToken;
+app.post(
+  "/api/audio",
+  upload.single("audio"),
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const file = (req as MulterRequest).file;
+      const sessionToken = req.sessionToken;
 
-    if (!file) {
-      res.status(400).json({ error: "No audio file uploaded" });
-      return;
+      if (!file) {
+        res.status(400).json({ error: "No audio file uploaded" });
+        return;
+      }
+
+      if (!sessionToken) {
+        res.status(401).json({ error: "No session token provided" });
+        return;
+      }
+
+      const session = sessionStore.get(sessionToken);
+      if (!session) {
+        res.status(404).json({ error: "Session not found" });
+        return;
+      }
+
+      // Store the audio buffer in the session
+      session.audioBuffer = file.buffer;
+
+      res.status(200).json({
+        message: "Audio uploaded successfully",
+        fileName: file.originalname,
+        fileSize: file.size,
+        mimeType: file.mimetype,
+      });
+    } catch (error) {
+      console.error("Error processing audio upload:", error);
+      res.status(500).json({ error: "Failed to process audio upload" });
     }
-
-    if (!sessionToken) {
-      res.status(401).json({ error: "No session token provided" });
-      return;
-    }
-
-    const session = sessionStore.get(sessionToken);
-    if (!session) {
-      res.status(404).json({ error: "Session not found" });
-      return;
-    }
-
-    // Store the audio buffer in the session
-    session.audioBuffer = file.buffer;
-
-    res.status(200).json({
-      message: "Audio uploaded successfully",
-      fileName: file.originalname,
-      fileSize: file.size,
-      mimeType: file.mimetype
-    });
-  } catch (error) {
-    console.error("Error processing audio upload:", error);
-    res.status(500).json({ error: "Failed to process audio upload" });
   }
-});
+);
 
 //get audio transcription
 app.get("/api/transcription", (req, res) => {});

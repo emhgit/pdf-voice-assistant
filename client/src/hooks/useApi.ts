@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 
-const API_BASE_URL = 'http://localhost:2008/api';
+const API_BASE_URL = "http://localhost:2008/api";
 
 // Helper function to get auth headers
 const getAuthHeaders = (): Record<string, string> => {
   const sessionToken = localStorage.getItem("sessionToken");
-  return sessionToken ? { "Authorization": `Bearer ${sessionToken}` } : {};
+  return sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {};
 };
 
 // Generic API fetch function
@@ -23,6 +23,8 @@ const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
   if (!response.ok) {
     throw new Error(`API Error: ${response.status} ${response.statusText}`);
   }
+
+  console.log(response);
 
   return response;
 };
@@ -42,7 +44,7 @@ function useApiState<T>() {
   });
 
   const setLoading = useCallback((loading: boolean) => {
-    setState(prev => ({ ...prev, loading, error: null }));
+    setState((prev) => ({ ...prev, loading, error: null }));
   }, []);
 
   const setData = useCallback((data: T) => {
@@ -58,22 +60,25 @@ function useApiState<T>() {
 
 // PDF related hooks
 export const usePdfFile = () => {
-  const { data, loading, error, setLoading, setData, setError } = useApiState<File>();
+  const { data, loading, error, setLoading, setData, setError } =
+    useApiState<File>();
 
   const fetchPdf = useCallback(async () => {
     if (!localStorage.getItem("sessionToken")) {
-      setError('No session token');
+      setError("No session token");
       return;
     }
 
     try {
       setLoading(true);
-      const response = await apiFetch('/pdf');
+      const response = await apiFetch("/pdf");
       const blob = await response.blob();
-      const file = new File([blob], "document.pdf", { type: "application/pdf" });
+      const file = new File([blob], "document.pdf", {
+        type: "application/pdf",
+      });
       setData(file);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch PDF');
+      setError(err instanceof Error ? err.message : "Failed to fetch PDF");
     }
   }, [setLoading, setData, setError]);
 
@@ -82,56 +87,66 @@ export const usePdfFile = () => {
   }, [fetchPdf]);
 
   // Expose setData as setPdfFile for external use
-  return { pdfFile: data, loading, error, refetch: fetchPdf, setPdfFile: setData };
+  return {
+    pdfFile: data,
+    loading,
+    error,
+    refetch: fetchPdf,
+    setPdfFile: setData,
+  };
 };
 
 export const useUploadPdf = () => {
   const { loading, error, setLoading, setError } = useApiState<File>();
 
-  const uploadPdf = useCallback(async (file: File) => {
-    try {
-      setLoading(true);
-      const formData = new FormData();
-      formData.append('pdf', file);
-      
-      const response = await apiFetch('/pdf', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      if (!response.ok) {
-        throw new Error("Upload failed");
-      }
+  const uploadPdf = useCallback(
+    async (file: File) => {
+      try {
+        setLoading(true);
+        const formData = new FormData();
+        formData.append("pdf", file);
 
-      const result = await response.json();
-      setLoading(false);
-      return result;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to upload PDF');
-      throw err;
-    }
-  }, [setLoading, setError]);
+        const response = await apiFetch("/pdf", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error("Upload failed");
+        }
+
+        const result = await response.json();
+        setLoading(false);
+        return result;
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to upload PDF");
+        throw err;
+      }
+    },
+    [setLoading, setError]
+  );
 
   return { uploadPdf, loading, error };
 };
 
 // Audio related hooks
 export const useAudioFile = () => {
-  const { data, loading, error, setLoading, setData, setError } = useApiState<Blob>();
+  const { data, loading, error, setLoading, setData, setError } =
+    useApiState<Blob>();
 
   const fetchAudio = useCallback(async () => {
     if (!localStorage.getItem("sessionToken")) {
-      setError('No session token');
+      setError("No session token");
       return;
     }
 
     try {
       setLoading(true);
-      const response = await apiFetch('/audio');
+      const response = await apiFetch("/audio");
       const blob = await response.blob();
       setData(blob);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch audio');
+      setError(err instanceof Error ? err.message : "Failed to fetch audio");
     }
   }, [setLoading, setData, setError]);
 
@@ -140,38 +155,48 @@ export const useAudioFile = () => {
   }, [fetchAudio]);
 
   // Expose setData as setAudioBlob for external use
-  return { audioBlob: data, loading, error, refetch: fetchAudio, setAudioBlob: setData };
+  return {
+    audioBlob: data,
+    loading,
+    error,
+    refetch: fetchAudio,
+    setAudioBlob: setData,
+  };
 };
 
 export const useUploadAudio = () => {
   const { loading, error, setLoading, setError } = useApiState<Blob>();
 
-  const uploadAudio = useCallback(async (file: File) => {
-    try {
-      setLoading(true);
-      const formData = new FormData();
-      formData.append('audio', file);
-      
-      const response = await apiFetch('/upload-audio', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      const result = await response.json();
-      setLoading(false);
-      return result;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to upload audio');
-      throw err;
-    }
-  }, [setLoading, setError]);
+  const uploadAudio = useCallback(
+    async (file: File) => {
+      try {
+        setLoading(true);
+        const formData = new FormData();
+        formData.append("audio", file);
+
+        const response = await apiFetch("/audio", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await response.json();
+        setLoading(false);
+        return result;
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to upload audio");
+        throw err;
+      }
+    },
+    [setLoading, setError]
+  );
 
   return { uploadAudio, loading, error };
 };
 
 // Transcription related hooks
 export const useTranscription = () => {
-  const { data, loading, error, setLoading, setData, setError } = useApiState<any>();
+  const { data, loading, error, setLoading, setData, setError } =
+    useApiState<any>();
 
   const fetchTranscription = useCallback(async () => {
     if (!localStorage.getItem("sessionToken")) {
@@ -181,11 +206,13 @@ export const useTranscription = () => {
 
     try {
       setLoading(true);
-      const response = await apiFetch('/transcription');
+      const response = await apiFetch("/transcription");
       const result = await response.json();
       setData(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch transcription');
+      setError(
+        err instanceof Error ? err.message : "Failed to fetch transcription"
+      );
     }
   }, [setLoading, setData, setError]);
 
@@ -199,25 +226,30 @@ export const useTranscription = () => {
 export const useProcessTranscription = () => {
   const { loading, error, setLoading, setError } = useApiState<any>();
 
-  const processTranscription = useCallback(async (audioBlob: Blob) => {
-    try {
-      setLoading(true);
-      const formData = new FormData();
-      formData.append('audio', audioBlob);
-      
-      const response = await apiFetch('/process-transcription', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      const result = await response.json();
-      setLoading(false);
-      return result;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to process transcription');
-      throw err;
-    }
-  }, [setLoading, setError]);
+  const processTranscription = useCallback(
+    async (audioBlob: Blob) => {
+      try {
+        setLoading(true);
+        const formData = new FormData();
+        formData.append("audio", audioBlob);
+
+        const response = await apiFetch("/process-transcription", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await response.json();
+        setLoading(false);
+        return result;
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to process transcription"
+        );
+        throw err;
+      }
+    },
+    [setLoading, setError]
+  );
 
   return { processTranscription, loading, error };
 };

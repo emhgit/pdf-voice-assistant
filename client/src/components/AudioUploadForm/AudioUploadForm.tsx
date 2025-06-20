@@ -4,7 +4,8 @@ import NavButton from "../NavButton/NavButton";
 import { useAppContext } from "../../context/AppContext";
 
 const AudioUploadForm = () => {
-  const { audioBlob, } = useAppContext();
+  const { audioBlob } = useAppContext();
+
   return (
     <div>
       <div>

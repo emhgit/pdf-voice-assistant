@@ -1,12 +1,23 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PdfView from "../PdfView/PdfView";
 import NavButton from "../NavButton/NavButton";
 import type { PdfUploadFormResponse } from "../../../../shared/src/types";
 import { useAppContext } from "../../context/AppContext";
+import { useSubmitted } from "../../hooks/useSubmitted";
 
 const PdfUploadForm = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const { pdfFile, pdfLoading, pdfError, uploadPdf, setPdfFile } = useAppContext();
+  const { submitted, setSubmitted } = useSubmitted();
+  const { pdfFile, pdfLoading, pdfError, uploadPdf, setPdfFile } =
+    useAppContext();
+
+  useEffect(() => {
+    if (!pdfFile) return;
+
+    const url = URL.createObjectURL(pdfFile);
+    setPdfUrl(url);
+    setSubmitted(true);
+  }, [pdfFile]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -22,11 +33,14 @@ const PdfUploadForm = () => {
     e.preventDefault();
     if (!pdfFile) return;
     try {
-      const pdfUploadFormResponse: PdfUploadFormResponse = await uploadPdf(pdfFile);
+      const pdfUploadFormResponse: PdfUploadFormResponse = await uploadPdf(
+        pdfFile
+      );
       if (pdfUploadFormResponse?.sessionId) {
         localStorage.setItem("sessionToken", pdfUploadFormResponse.sessionId);
       }
       // Optionally refetch or update state here
+      setSubmitted(true);
     } catch (err) {
       console.error(err);
     }
@@ -57,14 +71,7 @@ const PdfUploadForm = () => {
       </div>
 
       <div>
-        <NavButton
-          title="Next"
-          href={
-            pdfLoading 
-              ? "audio-upload-page"
-              : ""
-          }
-        />
+        <NavButton title="Next" href={submitted ? "audio-upload-page" : ""} />
       </div>
     </div>
   );
