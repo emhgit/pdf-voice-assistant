@@ -6,7 +6,7 @@ import { useAppContext } from "../../context/AppContext";
 
 const PdfUploadForm = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const { pdfFile, pdfLoading, pdfError, uploadPdf, refetchPdf, setPdfFile } = useAppContext();
+  const { pdfFile, pdfLoading, pdfError, uploadPdf, setPdfFile } = useAppContext();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -51,6 +51,8 @@ const PdfUploadForm = () => {
       </div>
 
       <div>
+        {pdfLoading && <p>Uploading PDF...</p>}
+        {pdfError && <p>Error: {pdfError}</p>}
         <PdfView url={pdfUrl ?? undefined} />
       </div>
 

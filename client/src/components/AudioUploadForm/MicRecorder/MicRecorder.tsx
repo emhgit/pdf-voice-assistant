@@ -5,7 +5,7 @@ const MicRecorder = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const [audioURL, setAudioURL] = useState<string | null>(null);
-  const { audioBlob, audioLoading, audioError, uploadAudio, setAudioBlob } = useAppContext();
+  const { audioLoading, audioError, uploadAudio, setAudioBlob } = useAppContext();
 
   const handleStartBtnClick = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -41,6 +41,8 @@ const MicRecorder = () => {
 
   return (
     <div>
+      {audioLoading && <p>Uploading audio...</p>}
+      {audioError && <p>Error: {audioError}</p>}
       {audioURL && <audio controls src={audioURL} />}
 
       <div className="flex justify-between m-4">
