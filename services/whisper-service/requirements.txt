@@ -1,4 +1,5 @@
-openai-whisper
+setuptools<81
+git+https://github.com/openai/whisper.git
 torch
 torchaudio
 fastapi
