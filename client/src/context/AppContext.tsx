@@ -26,6 +26,7 @@ interface AppContextType {
   transcriptionError: string | null;
   processTranscription: (audioBlob: Blob) => Promise<any>;
   refetchTranscription: () => void;
+  setTranscription: (transcription: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -57,6 +58,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     loading: transcriptionLoading,
     error: transcriptionError,
     refetch: refetchTranscription,
+    setTranscription,
   } = useTranscription();
   const { processTranscription } = useProcessTranscription();
 
@@ -83,6 +85,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     transcriptionError,
     processTranscription,
     refetchTranscription,
+    setTranscription,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
