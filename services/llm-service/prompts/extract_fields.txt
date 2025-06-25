@@ -1,0 +1,12 @@
+Extract structured data from the following transcription to fill out a PDF form.
+Return ONLY a JSON object where each key is a PDF field name and the value is the extracted data.
+Use this format: {"field_name": "value"}.
+
+Transcription: "{transcription}"
+
+PDF Field Names: {pdf_field_names}
+
+Rules:
+- Ignore irrelevant or repeated information.
+- Match values to the closest field name semantically.
+- Return empty ("") for unmatched fields. 

@@ -1,4 +1,4 @@
-Here’s a step-by-step guide to implement the LLM microservice for your AI PDF Assistant:
+Step-by-step guide to implement the LLM microservice:
 
 ---
 
@@ -22,7 +22,7 @@ Here’s a step-by-step guide to implement the LLM microservice for your AI PDF 
 ### **2. Integrate Ollama/Mistral into Your Repository**
 
 1. **Create a Python Microservice**:
-   - Set up a `llm-service` directory in your monorepo (e.g., `/services/llm`).
+   - Set up a `llm-service` directory in your monorepo (e.g., `/services/llm-service`).
    - Use FastAPI for the server framework (install with `pip install fastapi uvicorn`).
 2. **Add Ollama Python Client**:
    - Install the Ollama Python library:
@@ -132,20 +132,7 @@ Here’s a step-by-step guide to implement the LLM microservice for your AI PDF 
 
 ---
 
-### **Meta Prompt: Mistral vs. Other LLMs (e.g., DeepSeek)**
-
-- **Mistral (via Ollama)**:
-  - **Pros**: Lightweight, locally runnable, offline-capable, low latency.
-  - **Cons**: Limited to Ollama’s model zoo (but supports Llama 2, Mistral, etc.).
-- **DeepSeek**:
-  - **Pros**: Potentially better accuracy for niche tasks.
-  - **Cons**: May require API calls (not fully local), higher cost/complexity.
-- **Recommendation**: Stick with Mistral for now (aligns with your "local-first" requirement). Later, benchmark against DeepSeek if needed.
-
----
-
 ### **Additional Notes**
 
 - **Error Handling**: Add retry logic in `call_llm` for transient Ollama failures.
 - **Session ID**: Integrate with your existing session store (pass `sessionId` to `/extract` and fetch `pdf_field_names` from memory).
-- **Validation**: Use Pydantic to validate the LLM’s JSON output before returning it.
