@@ -75,6 +75,7 @@ def call_llm(transcription: str, pdf_field_names: List[str]) -> Dict[str, str]:
             # Ensure all field names are present in the response
             result = {}
             for field_name in pdf_field_names:
+                # Handle case where field name might be in different case
                 matching_key = next(
                     (key for key in extracted_data.keys() if key.lower() == field_name.lower()),
                     field_name
