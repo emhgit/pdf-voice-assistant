@@ -5,7 +5,7 @@ Step-by-step guide to implement the LLM microservice:
 ### **1. Download Ollama**
 
 1. **Install Ollama**:
-   - Visit [Ollama’s official website](https://ollama.ai/) and download the appropriate version for your OS (Windows/macOS/Linux).
+   - Visit [Ollama's official website](https://ollama.ai/) and download the appropriate version for your OS (Windows/macOS/Linux).
    - Follow the installation instructions.
 2. **Pull Mistral Model**:
    - Run the following command in your terminal:
@@ -72,13 +72,30 @@ Step-by-step guide to implement the LLM microservice:
    ```python
    import ollama
    from fastapi import FastAPI, HTTPException
-   from pydantic import BaseModel
+   from typing import Dict, Any
 
    app = FastAPI()
 
-   class ExtractionRequest(BaseModel):
-       transcription: str
-       pdf_field_names: list[str]
+   class ExtractionRequest:
+       def __init__(self, transcription: str, pdf_field_names: list[str]):
+           self.transcription = transcription
+           self.pdf_field_names = pdf_field_names
+       
+       @classmethod
+       def from_dict(cls, data: Dict[str, Any]) -> 'ExtractionRequest':
+           """Create ExtractionRequest from dictionary."""
+           if not isinstance(data, dict):
+               raise ValueError("Data must be a dictionary")
+           
+           transcription = data.get("transcription")
+           if not isinstance(transcription, str):
+               raise ValueError("transcription must be a string")
+           
+           pdf_field_names = data.get("pdf_field_names")
+           if not isinstance(pdf_field_names, list):
+               raise ValueError("pdf_field_names must be a list")
+           
+           return cls(transcription=transcription, pdf_field_names=pdf_field_names)
 
    def call_llm(transcription: str, pdf_field_names: list[str]) -> dict:
        prompt = f"""
@@ -106,9 +123,17 @@ Step-by-step guide to implement the LLM microservice:
        except Exception as e:
            raise HTTPException(status_code=500, detail=f"LLM error: {str(e)}")
 
-   @app.get("/extract")
-   async def extract_fields(transcription: str, pdf_field_names: list[str]):
-       return call_llm(transcription, pdf_field_names)
+   @app.post("/extract")
+   async def extract_fields(request_data: Dict[str, Any]):
+       try:
+           # Parse the request data manually
+           request = ExtractionRequest.from_dict(request_data)
+           extracted_fields = call_llm(request.transcription, request.pdf_field_names)
+           return {"extracted_fields": extracted_fields}
+       except ValueError as e:
+           raise HTTPException(status_code=400, detail=f"Invalid request data: {str(e)}")
+       except Exception as e:
+           raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
    ```
 
 ---
@@ -121,13 +146,15 @@ Step-by-step guide to implement the LLM microservice:
      uvicorn main:app --reload --port 8001
      ```
 2. **Test the Endpoint**:
-   - Call `GET /extract` with query parameters:
+   - Call `POST /extract` with JSON body:
      ```bash
-     curl "http://localhost:8001/extract?transcription=My%20name%20is%20John&pdf_field_names=name,age"
+     curl -X POST "http://localhost:8001/extract" \
+          -H "Content-Type: application/json" \
+          -d '{"transcription": "My name is John", "pdf_field_names": ["name", "age"]}'
      ```
    - Expected response:
      ```json
-     { "name": "John", "age": "" }
+     { "extracted_fields": { "name": "John", "age": "" } }
      ```
 
 ---

@@ -1,6 +1,6 @@
 Extract structured data from the following transcription to fill out a PDF form.
 Return ONLY a JSON object where each key is a PDF field name and the value is the extracted data.
-Use this format: {"field_name": "value"}.
+Use this format: {{"field_name": "value"}}.
 
 Transcription: "{transcription}"
 
