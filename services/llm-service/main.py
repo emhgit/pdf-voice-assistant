@@ -65,15 +65,27 @@ def call_llm(transcription: str, pdf_field_names: List[str]) -> Dict[str, str]:
         
         # Parse the JSON response
         response_text = response.get("response", "{}")
+        print(f"Raw LLM response: {response_text}")  # Add logging
+
+        # Clean the response (remove markdown code blocks if present)
+        response_text = response_text.strip().replace('```json', '').replace('```', '').strip()
+
         try:
             extracted_data = json.loads(response_text)
             # Ensure all field names are present in the response
             result = {}
             for field_name in pdf_field_names:
-                result[field_name] = extracted_data.get(field_name, "")
+                matching_key = next(
+                    (key for key in extracted_data.keys() if key.lower() == field_name.lower()),
+                    field_name
+                )
+                result[field_name] = extracted_data.get(matching_key, "")
             return result
         except json.JSONDecodeError:
-            raise HTTPException(status_code=500, detail="Invalid JSON response from LLM")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Invalid JSON response from LLM: {response_text}. Error: {str(e)}"
+            )
             
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"LLM error: {str(e)}")
