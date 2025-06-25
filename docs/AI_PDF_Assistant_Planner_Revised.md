@@ -1,4 +1,4 @@
-**1\. Project Summary** 
+# **1\. Project Summary** 
 
 Title: Voice-Powered AI PDF Form Assistant 
 
@@ -8,146 +8,135 @@ A web application that allows users to fill out PDF forms by speaking. The app c
 
 Tech Stack: 
 
-● Frontend: React, Web Speech API / mic access, File upload 
+- Frontend: React, TailwindCSS 
 
-● Backend: Node.js (Express), Python microservices (Whisper), Ollama (Mistral) ● Libraries: pdf-lib, fs, body-parser, etc. 
+- Backend: Node.js (Express); Python microservices Whisper and  Ollama (Mistral)
 
-**2\. Functional Requirements** 
+- Libraries: pdf-lib, multer 
+
+## **2\. Functional Requirements** 
 
 **User Features** 
 
-● Upload a fillable PDF form. 
+- Upload a fillable PDF form. 
 
-● Record voice input or upload audio. 
+- Record voice input or upload audio. 
 
-● View extracted data before submission (optional). 
+- View extracted data before submission (optional). 
 
-● Download the filled PDF. 
+- Download the filled PDF. 
 
-● Optionally edit or confirm AI interpretations. 
+- Optionally edit or confirm AI interpretations. 
 
 **System Features** 
 
-● Extract all form field names from uploaded PDF.  
-● Transcribe audio using local Whisper backend. 
+- Extract all form field names from uploaded PDF.  
+- Transcribe audio using local Whisper backend. 
 
-● Use local LLM (via Ollama) to: 
+- Use local LLM (via Ollama) to: 
 
-○ Understand user speech. 
+- Understand user speech. 
 
-○ Map data to available form fields. 
+- Map data to available form fields. 
 
-○ Handle multiple values or repeated field patterns. 
+- Handle multiple values or repeated field patterns. 
 
-● Dynamically fill out PDFs using field-value mapping. 
+- Dynamically fill out PDFs using field-value mapping. 
 
-● Handle unmatched data by appending it to a new section in the PDF (optional). 
+- Handle unmatched data by appending it to a new section in the PDF (optional). 
 
 **Non-Functional Requirements** 
 
-● Must work offline or locally (no external APIs). 
+- Must work offline or locally (no external APIs). 
 
-● Fast processing (\<10s preferred for \~1 min speech). 
+- Fast processing (\<10s preferred for \~1 min speech). 
 
-● Secure handling of uploaded files. 
+- Secure handling of uploaded files. 
 
-● Modular backend (STT, NLU, and PDF logic decoupled). 
+- Modular backend (STT, NLU, and PDF logic decoupled). 
 
-**3\. Data Schema** 
+## **3\. Data Schema** 
 
 **PDF Metadata:** 
 
-type PDFField \= { 
+```ts
+type PDFField = { 
 
 name: string; 
 
 type: 'Text' | 'Checkbox' | 'RadioButton' | 'Dropdown'; 
 
 }; 
+```
 
 **Speech Transcription** 
 
 **LLM Extraction Output** 
+```ts
 
-type ExtractedFormData \= { 
+type ExtractedFormData = { 
 
-\[fieldName: string\]: string; 
-
-}; 
-
-**Request Flow Between Services** 
-
-type FormFillRequest \= { 
-
-pdfFile: File; 
-
-audioFile: File; 
+[fieldName: string\]: string; 
 
 }; 
+```
 
-type BackendParsedData \= { 
 
-fieldsFromPDF: PDFField\[\]; 
+## **4\. Pages** 
 
-transcription: Transcription; 
+1\. PDF Upload Page 
 
-aiExtractedValues: ExtractedFormData; }; 
+- PDFUploadForm 
 
-**4\. Pages** 
+- File input \+ upload button for selecting a PDF PDFPreview 
 
-�� 1\. PDF Upload Page 
+- Displays the uploaded PDF using an \<iframe\> NavigationButton 
 
-PDFUploadForm 
+- “Next” button to go to audio step 
 
-File input \+ upload button for selecting a PDF PDFPreview 
+2\. Audio Upload / Recording Page AudioRecorder 
 
-Displays the uploaded PDF using an \<iframe\> NavigationButton 
-
-“Next” button to go to audio step 
-
-�� 2\. Audio Upload / Recording Page AudioRecorder 
-
-Start/stop mic recording (using MediaRecorder)  
+- Start/stop mic recording (using MediaRecorder)  
 AudioUploadForm 
 
-Upload an audio file manually 
+- Upload an audio file manually 
 
-WaveformPreview 
+- WaveformPreview 
 
-Canvas/wavesurfer.js waveform of the recording (optional) AudioTranscribeButton 
+- Canvas/wavesurfer.js waveform of the recording (optional) AudioTranscribeButton 
 
-Button to trigger audio transcription 
+- Button to trigger audio transcription 
 
-NavigationButton 
+- NavigationButton 
 
-“Back” and “Next” buttons 
+- “Back” and “Next” buttons 
 
-�� 3\. Transcription \+ Extracted Fields Preview Page TranscriptDisplay 
+3\. Transcription \+ Extracted Fields Preview Page TranscriptDisplay 
 
-Shows raw transcription text with optional timestamps ExtractedDataTable 
+- Shows raw transcription text with optional timestamps ExtractedDataTable 
 
-Table of field → extracted value 
+- Table of field → extracted value 
 
-FieldEditor 
+- FieldEditor 
 
-Optional form for editing extracted data (could be part of table) NavigationButton 
+- Optional form for editing extracted data (could be part of table) NavigationButton 
 
-“Back”, “Confirm”, “Next” buttons 
+- “Back”, “Confirm”, “Next” buttons 
 
-�� 4\. Filled PDF Download Page 
+4\. Filled PDF Download Page 
 
-FinalPDFPreview 
+- FinalPDFPreview 
 
-Displays the final filled PDF (\<iframe\> or viewer) 
+- Displays the final filled PDF (\<iframe\> or viewer) 
 
-DownloadButton 
+- DownloadButton 
 
-Triggers download from /api/download  
-NavigationButton 
+- Triggers download from /api/download  
+- NavigationButton 
 
-“Start Over” or “Exit” buttons 
+- “Start Over” or “Exit” buttons 
 
-**5\. Sequence Diagram** 
+## **5\. Sequence Diagram** 
 
 User 
 
@@ -231,7 +220,7 @@ Updated Workflow Sequence:
 \- Transcribe using Whisper.   
 \- Save audio and transcript in memory, keyed by sessionId. 
 
-3\. POST /api/process   
+3\. POST /api/extract   
 \- Retrieve stored PDF and transcript using sessionId.   
 \- Run local LLM (Mistral via Ollama) to extract field values.   
 \- Fill PDF using pdf-lib.   

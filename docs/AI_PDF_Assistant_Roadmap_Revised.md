@@ -1,226 +1,228 @@
-**Implementation Roadmap** 
+# **Implementation Roadmap** 
 
-**Phase 1: Project Setup and Basic Infrastructure (Week 1\)** 
+## **Phase 1: Project Setup and Basic Infrastructure (Week 1)** 
 
-1\. Project Structure Setup 
+1. Project Structure Setup 
 
-● \[x\] Initialize client (React \+ TypeScript \+ Vite) 
+-  [x] Initialize client (React + TypeScript + Vite) 
 
-● \[x\] Initialize server (Express \+ TypeScript) 
+-  [x] Initialize server (Express + TypeScript) 
 
-● \[x\] Set up shared types between client and server 
+-  [x] Set up shared types between client and server 
 
-1\. Basic Dependencies 
+1. Basic Dependencies 
 
-● \[x\] Install and configure pdf-lib for PDF manipulation 
+-  [x] Install and configure pdf-lib for PDF manipulation 
 
-● \[x\] Set up Whisper API integration 
+-  [x] Set up Whisper API integration 
 
-● \[ \] Configure Ollama/Mistral for local LLM processing 
+-  [ ] Configure Ollama/Mistral for local LLM processing 
 
-● \[x\] Set up audio recording libraries (e.g., react-media-recorder) 
+-  [x] Set up audio recording libraries (e.g., react-media-recorder) 
 
-**Phase 2: PDF Handling (Week 2\)** 
+## **Phase 2: PDF Handling (Week 2)** 
 
-1\. PDF Upload and Display 
+1. PDF Upload and Display 
 
-● \[x\] Create PDF upload component in React 
+-  [x] Create PDF upload component in React 
 
-● \[x\] Implement PDF preview using iframe 
+-  [x] Implement PDF preview using iframe 
 
-● \[ \] Add drag-and-drop support 
+-  [ ] Add drag-and-drop support 
 
-● \[x\] Implement file validation
+-  [x] Implement file validation
 
-* \[x\] Add PDF Context for global state tracking   
-  1\. PDF Field Extraction   
-  ● \[x\] Create PDF parsing service using pdf-lib   
-  ● \[x\] Implement field detection and mapping   
-  ● \[x\] Create API endpoint for PDF field extraction   
-  ● \[x\] Add field type detection (text, checkbox, radio, etc.)  
-  **Phase 3: Audio Processing (Week 3\)** 1\. Audio Recording  
-  ● \[x\] Implement audio recording component   
-  ● \[ \] Add audio visualization   
-  ● \[ \] Implement audio file upload option   
-  ● \[x\] Add audio format validation   
-* \[x\] Add audio buffer context for global state tracking   
-* \[x\] Add audio transcription context for global state tracking  
-  1\. Transcription Service   
-  ● \[x\] Set up Whisper API integration   
-  ● \[x\] Create audio processing service   
-  ● \[x\] Implement GET transcription endpoint   
-  ● \[ \] Add error handling and retry logic 
+* [x] Add PDF Context for global state tracking   
+  1. PDF Field Extraction   
+  -  [x] Create PDF parsing service using pdf-lib   
+  -  [x] Implement field detection and mapping   
+  -  [x] Create API endpoint for PDF field extraction   
+  -  [x] Add field type detection (text, checkbox, radio, etc.)
 
-**Phase 4: LLM Integration (Week 4\)** 
+## **Phase 3: Audio Processing (Week 3)** 
+1. Audio Recording  
+  -  [x] Implement audio recording component   
+  -  [ ] Add audio visualization   
+  -  [ ] Implement audio file upload option   
+  -  [x] Add audio format validation   
+* [x] Add audio buffer context for global state tracking   
+* [x] Add audio transcription context for global state tracking  
+  1. Transcription Service   
+  -  [x] Set up Whisper API integration   
+  -  [x] Create audio processing service   
+  -  [x] Implement GET transcription endpoint   
+  -  [ ] Add error handling and retry logic 
 
-1\. Local LLM Setup 
+## **Phase 4: LLM Integration (Week 4)** 
 
-● \[ \] Configure Ollama with Mistral model 		
+1. Local LLM Setup 
 
-● \[ \] Create LLM service interface 
+-  [ ] Configure Ollama with Mistral model 		
 
-● \[ \] Implement prompt engineering for form field extraction
+-  [ ] Create LLM service interface 
 
-● \[ \] Add context management extracted fields
+-  [ ] Implement prompt engineering for form field extraction
 
-1\. Data Processing 
+-  [ ] Add context management extracted fields
 
-● \[ \] Create JSON schema for form field mapping 
+1. Data Processing 
 
-● \[ \] Implement field value extraction from LLM response 
+-  [ ] Create JSON schema for form field mapping 
 
-● \[ \] Add validation for extracted data 
+-  [ ] Implement field value extraction from LLM response 
 
-● \[ \] Create error handling for mismatched fields 
+-  [ ] Add validation for extracted data 
 
-● \[ \] Add JSON context for global state tracking
+-  [ ] Create error handling for mismatched fields 
 
-**Phase 5: PDF Form Filling (Week 5\)** 
+-  [ ] Add JSON context for global state tracking
 
-1\. Form Filling Logic 
+## **Phase 5: PDF Form Filling (Week 5)** 
 
-● \[ \] Implement PDF form filling service 
+1. Form Filling Logic 
 
-● \[ \] Create field mapping algorithm 
+-  [ ] Implement PDF form filling service 
 
-● \[ \] Add support for different field types 
+-  [ ] Create field mapping algorithm 
 
-● \[ \] Implement PDF buffer management 
+-  [ ] Add support for different field types 
 
-1\. Download and Export 
+-  [ ] Implement PDF buffer management 
 
-● \[ \] Create download endpoint 
+1. Download and Export 
 
-● \[ \] Implement file naming and organization 
+-  [ ] Create download endpoint 
 
-● \[ \] Add progress tracking 
+-  [ ] Implement file naming and organization 
 
-● \[ \] Implement error handling for failed fills 
+-  [ ] Add progress tracking 
 
-**Phase 6: UI/UX and Polish (Week 6\)**  
-1\. User Interface 
+-  [ ] Implement error handling for failed fills 
 
-● \[ \] Design and implement main application layout 
+## **Phase 6: UI/UX and Polish (Week 6)**  
+1. User Interface 
 
-● \[ \] Create progress indicators 
+-  [ ] Design and implement main application layout 
 
-● \[ \] Add form field preview 
+-  [ ] Create progress indicators 
 
-● \[ \] Implement responsive design 
+-  [ ] Add form field preview 
 
-1\. User Experience 
+-  [ ] Implement responsive design 
 
-● \[ \] Add loading states 
+1. User Experience 
 
-● \[ \] Implement error messages 
+-  [ ] Add loading states 
 
-● \[ \] Add success notifications 
+-  [ ] Implement error messages 
 
-● \[ \] Create help/tutorial system 
+-  [ ] Add success notifications 
 
-**Phase 7: Testing and Optimization (Week 7\)** 
+-  [ ] Create help/tutorial system 
 
-1\. Testing 
+## **Phase 7: Testing and Optimization (Week 7)** 
 
-● \[ \] Write unit tests for core functionality 
+1. Testing 
 
-● \[ \] Implement integration tests 
+-  [ ] Write unit tests for core functionality 
 
-● \[ \] Add end-to-end testing 
+-  [ ] Implement integration tests 
 
-● \[ \] Perform security testing 
+-  [ ] Add end-to-end testing 
 
-1\. Optimization 
+-  [ ] Perform security testing 
 
-● \[ \] Optimize audio processing 
+1. Optimization 
 
-● \[ \] Improve LLM response time 
+-  [ ] Optimize audio processing 
 
-● \[ \] Optimize PDF handling 
+-  [ ] Improve LLM response time 
 
-● \[ \] Implement caching where appropriate 
+-  [ ] Optimize PDF handling 
 
-**Phase 8: Documentation and Deployment (Week 8\)** 
+-  [ ] Implement caching where appropriate 
 
-1\. Documentation 
+## **Phase 8: Documentation and Deployment (Week 8)** 
 
-● \[ \] Write API documentation 
+1. Documentation 
 
-● \[ \] Create user guide 
+-  [ ] Write API documentation 
 
-● \[ \] Document setup process 
+-  [ ] Create user guide 
 
-● \[ \] Add code documentation 
+-  [ ] Document setup process 
 
-1\. Deployment 
+-  [ ] Add code documentation 
 
-● \[ \] Set up production environment 
+1. Deployment 
 
-● \[ \] Configure CI/CD pipeline 
+-  [ ] Set up production environment 
 
-● \[ \] Implement monitoring 
+-  [ ] Configure CI/CD pipeline 
 
-● \[ \] Create backup strategy  
-**Key Technical Considerations:** 
+-  [ ] Implement monitoring 
 
-1\. Security 
+-  [ ] Create backup strategy  
+## **Key Technical Considerations:** 
 
-● Implement proper file validation 
+1. Security 
 
-● Add rate limiting 
+-  Implement proper file validation 
 
-● Secure API endpoints 
+-  Add rate limiting 
 
-● Handle sensitive data properly 
+-  Secure API endpoints 
 
-1\. Performance 
+-  Handle sensitive data properly 
 
-● Optimize audio processing 
+1. Performance 
 
-● Implement efficient PDF handling 
+-  Optimize audio processing 
 
-● Cache LLM responses where possible 
+-  Implement efficient PDF handling 
 
-● Use streaming for large files 
+-  Cache LLM responses where possible 
 
-1\. Error Handling 
+-  Use streaming for large files 
 
-● Implement comprehensive error handling 
+1. Error Handling 
 
-● Add retry mechanisms 
+-  Implement comprehensive error handling 
 
-● Create user-friendly error messages 
+-  Add retry mechanisms 
 
-● Log errors for debugging 
+-  Create user-friendly error messages 
 
-1\. Scalability 
+-  Log errors for debugging 
 
-● Design for horizontal scaling 
+1. Scalability 
 
-● Implement proper resource management 
+-  Design for horizontal scaling 
 
-● Consider using message queues for heavy processing ● Optimize database usage  
-\[Revision: Implementation Update \- Token \+ Memory Map Persistence\] 
+- Implement proper resource management 
+
+-  Consider using message queues for heavy processing ● Optimize database usage  
+[Revision: Implementation Update - Token + Memory Map Persistence] 
 
 Architecture now includes an in-memory session store using server-generated UUID tokens. This store peKey Changes in Implementation Roadmap: 
 
 Phase 1: Project Setup   
-\- \[x\] Create in-memory session store with UUID keys 
+- [x] Create in-memory session store with UUID keys 
 
 Phase 2: PDF Handling   
-\- \[x\] Store PDF buffer in memory on upload and return session ID 
+- [x] Store PDF buffer in memory on upload and return session ID 
 
 Phase 3: Audio Processing   
-\- \[\] Store audio buffer and transcription using session ID 
+- [] Store audio buffer and transcription using session ID 
 
 Phase 5: PDF Form Filling   
-\- \[\] Retrieve stored PDF using session ID and fill it 
+- [] Retrieve stored PDF using session ID and fill it 
 
 Phase 7: Testing   
-\- \[ \] Add tests for session persistence logic 
+- [ ] Add tests for session persistence logic 
 
 New Routes:   
-\- POST /api/pdf → returns sessionId and field metadata   
-\- POST /api/audio → requires sessionId   
-\- POST /api/process → requires sessionId   
-\- GET /api/download?sessionId=... → returns filled PDF
+- POST /api/pdf → returns sessionId and field metadata   
+- POST /api/audio → requires sessionId   
+- POST /api/process → requires sessionId   
+- GET /api/download?sessionId=... → returns filled PDF

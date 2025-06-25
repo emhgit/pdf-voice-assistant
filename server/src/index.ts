@@ -223,13 +223,13 @@ app.get("/api/transcription", (req, res) => {
 app.put("/api/transcription", (req, res) => {});
 
 // Update extracted key-value pairs
-app.post("/api/extracted", (req, res) => {});
+app.post("/api/extract", (req, res) => {});
 
 // get extracted key-value pairs
-app.get("/api/extracted", (req, res) => {});
+app.get("/api/extract", (req, res) => {});
 
 // update extracted key-value pairs
-app.put("/api/extracted", (req, res) => {});
+app.put("/api/extract", (req, res) => {});
 
 // get finalized pdf
 app.get("/api/download", (req, res) => {});
