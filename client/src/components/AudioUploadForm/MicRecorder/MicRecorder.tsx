@@ -5,8 +5,15 @@ const MicRecorder = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const [audioURL, setAudioURL] = useState<string | null>(null);
-  const { audioBlob, audioLoading, audioError, uploadAudio, setAudioBlob, setTranscription } =
-    useAppContext();
+  const {
+    audioBlob,
+    audioLoading,
+    audioError,
+    uploadAudio,
+    setAudioBlob,
+    setTranscription,
+    setExtractedFields,
+  } = useAppContext();
 
   useEffect(() => {
     if (!audioBlob) return;
@@ -37,6 +44,7 @@ const MicRecorder = () => {
           new File([blob], "recording.webm", { type: "audio/webm" })
         );
         setTranscription(response.transcription);
+        setExtractedFields(response.extractedFields);
       } catch (error) {
         console.error("Error uploading audio:", error);
       }

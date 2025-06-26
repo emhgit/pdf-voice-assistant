@@ -31,14 +31,25 @@ export const getPdfFields = async (pdfBuffer: Buffer) => {
   return formFields;
 };
 
-export const transcribeAudio = async (audioBuffer: Buffer, language?: string): Promise<string> => {
+export const transcribeAudio = async (
+  audioBuffer: Buffer,
+  language?: string
+): Promise<string> => {
   try {
     const formData = new FormData();
-    formData.append("audio_file", new Blob([audioBuffer], { type: "audio/webm" }), "recording.webm");
-    const response = await fetch("http://localhost:8000/transcribe" + (language ? `?language=${encodeURIComponent(language)}` : ""), {
-      method: "POST",
-      body: formData,
-    });
+    formData.append(
+      "audio_file",
+      new Blob([new Uint8Array(audioBuffer)], { type: "audio/webm" }),
+      "recording.webm"
+    );
+    const response = await fetch(
+      "http://localhost:8000/transcribe" +
+        (language ? `?language=${encodeURIComponent(language)}` : ""),
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
     if (!response.ok) {
       throw new Error(`Transcription service error: ${response.statusText}`);
     }
@@ -50,9 +61,13 @@ export const transcribeAudio = async (audioBuffer: Buffer, language?: string): P
   }
 };
 
-export const getExtractedFields = async (fields : string[], transcription : string): Promise<{name: string; value: string}[]> => {
+export const getExtractedFields = async (
+  fields: string[],
+  transcription: string
+): Promise<{ name: string; value: string }[]> => {
   try {
-    const response = await fetch("http://localhost:8000/extract", {
+    console.log("Extracting fields:", fields);
+    const response = await fetch("http://localhost:8001/extract", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -65,9 +80,10 @@ export const getExtractedFields = async (fields : string[], transcription : stri
     }
 
     const data = await response.json();
-    return data.fields.map((field: { name: string; value: string }) => ({
-      name: field.name,
-      value: field.value,
+    console.log("Extraction response:", data);
+    return Object.entries(data.extracted_fields).map(([name, value]) => ({
+      name,
+      value: String(value),
     }));
   } catch (e) {
     console.error("Error extracting fields:", e);

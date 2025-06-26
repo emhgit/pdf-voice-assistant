@@ -33,13 +33,25 @@ interface MulterRequest extends Request {
 const sessionStore = new Map<
   string,
   {
-    pdfBuffer: Buffer;
+    pdfBuffer?: Buffer;
     pdfFields?: { name: string; type: string; isEmpty: boolean }[];
     audioBuffer?: Buffer;
     transcription?: string;
     extractedFields?: Record<string, string>[];
   }
 >();
+
+/*
+sessionStore.set("test-session", {
+  pdfFields: [
+    { name: "First Name", type: "TextField", isEmpty: true },
+    { name: "Last Name", type: "TextField", isEmpty: true },
+    { name: "Date", type: "TextField", isEmpty: true },
+  ],
+});
+
+console.log("Session Store Initialized: " + sessionStore.get("test-session"));
+*/
 
 //CORS Middleware
 app.use(cors());
@@ -189,6 +201,7 @@ app.post(
       } catch (err) {
         console.error("Transcription failed:", err);
       }
+      console.log("Transcription: ", transcription);
 
       const pdfFields = session.pdfFields;
       if (!pdfFields) {
@@ -197,7 +210,7 @@ app.post(
       }
       // Extract key-value pairs from transcription
       let extractedFields = null;
-      try { 
+      try {
         extractedFields = await getExtractedFields(
           pdfFields.map((field) => field.name),
           transcription!

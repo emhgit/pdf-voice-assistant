@@ -13,6 +13,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+async def root():
+    """Health check endpoint."""
+    return {"message": "LLM Service is running", "status": "healthy"}
+
 # POST endpoint (recommended)
 @app.post("/transcribe")
 async def transcribe_post(

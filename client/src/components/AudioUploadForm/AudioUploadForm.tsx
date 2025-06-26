@@ -2,6 +2,7 @@ import MicRecorder from "./MicRecorder/MicRecorder";
 import NavButton from "../NavButton/NavButton";
 import { useAppContext } from "../../context/AppContext";
 import AudioTranscription from "./AudioTranscription/AudioTranscription";
+import ExtractedFieldsDisplay from "./ExtractedFieldsDisplay";
 
 const AudioUploadForm = () => {
   const { audioBlob } = useAppContext();
@@ -18,6 +19,10 @@ const AudioUploadForm = () => {
 
       <div>
         <AudioTranscription />
+      </div>
+
+      <div>
+        <ExtractedFieldsDisplay />
       </div>
 
       <div className="flex justify-between">
