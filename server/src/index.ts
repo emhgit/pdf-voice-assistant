@@ -243,10 +243,24 @@ app.get("/api/transcription", (req, res) => {
 app.put("/api/transcription", (req, res) => {});
 
 // Update extracted key-value pairs
-app.post("/api/extract", (req, res) => {});
+//app.post("/api/extract", (req, res) => {});
 
 // get extracted key-value pairs
-app.get("/api/extract", (req, res) => {});
+app.get("/api/extract", (req, res) => {
+  const sessionToken = req.sessionToken;
+  if (!sessionToken) {
+    res.status(401).json({ error: "No session token provided" });
+    return;
+  }
+  const session = sessionStore.get(sessionToken);
+  if (!session || !session.transcription) {
+    res.status(404).json({ error: "Extracted fields not found" });
+    return;
+  }
+  res.status(200).json({
+    fields: session.extractedFields || [],
+  });
+});
 
 // update extracted key-value pairs
 app.put("/api/extract", (req, res) => {});

@@ -1,5 +1,5 @@
 import { createContext, useContext, type ReactNode } from "react";
-import { usePdfFile, useUploadPdf } from "../hooks/useApi";
+import { useExtractedFields, usePdfFile, useUploadPdf } from "../hooks/useApi";
 import { useAudioFile, useUploadAudio } from "../hooks/useApi";
 import { useTranscription, useProcessTranscription } from "../hooks/useApi";
 
@@ -27,6 +27,13 @@ interface AppContextType {
   processTranscription: (audioBlob: Blob) => Promise<any>;
   refetchTranscription: () => void;
   setTranscription: (transcription: string) => void;
+
+  // Extracted fields state
+  extractedFields: { name: string; value: string }[] | null;
+  setExtractedFields: (fields: { name: string; value: string }[]) => void;
+  extractedFieldsLoading: boolean;
+  extractedFieldsError: string | null;
+  refetchExtractedFields: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -62,6 +69,15 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   } = useTranscription();
   const { processTranscription } = useProcessTranscription();
 
+  // Extracted fields state
+  const {
+    extractedFields,
+    setExtractedFields,
+    extractedFieldsLoading, 
+    extractedFieldsError,
+    refetchExtractedFields,
+  } = useExtractedFields();
+
   const value: AppContextType = {
     // PDF
     pdfFile,
@@ -86,6 +102,13 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     processTranscription,
     refetchTranscription,
     setTranscription,
+
+    // Extracted fields
+    extractedFields,
+    setExtractedFields,
+    extractedFieldsLoading,
+    extractedFieldsError,
+    refetchExtractedFields,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

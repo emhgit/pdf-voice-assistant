@@ -259,3 +259,38 @@ export const useProcessTranscription = () => {
 
   return { processTranscription, loading, error };
 };
+
+export const useExtractedFields = () => {
+  const { data, loading, error, setLoading, setData, setError } =
+    useApiState<{ name: string; value: string }[] | null>();
+
+  const fetchExtractedFields = useCallback(async () => {
+    if (!localStorage.getItem("sessionToken")) {
+      setData(null);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await apiFetch("/extract");
+      const result = await response.json();
+      setData(result.fields);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to fetch extracted fields"
+      );
+    }
+  }, [setLoading, setData, setError]);
+
+  useEffect(() => {
+    fetchExtractedFields();
+  }, [fetchExtractedFields]);
+
+  return {
+    extractedFields: data,
+    setExtractedFields: setData,
+    extractedFieldsLoading : loading,
+    extractedFieldsError : error,
+    refetchExtractedFields: fetchExtractedFields,
+  };
+}
