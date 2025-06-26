@@ -4,7 +4,7 @@ import type {
   PdfMetadata,
   PdfUploadFormResponse,
 } from "../../shared/src/types";
-import { getPdfFields, transcribeAudio } from "./utils";
+import { getExtractedFields, getPdfFields, transcribeAudio } from "./utils";
 
 // Extend Express Request interface to include sessionToken
 declare global {
@@ -190,12 +190,32 @@ app.post(
         console.error("Transcription failed:", err);
       }
 
+      const pdfFields = session.pdfFields;
+      if (!pdfFields) {
+        res.status(400).json({ error: "PDF fields not available" });
+        return;
+      }
+      // Extract key-value pairs from transcription
+      let extractedFields = null;
+      try { 
+        extractedFields = await getExtractedFields(
+          pdfFields.map((field) => field.name),
+          transcription!
+        );
+        session.extractedFields = extractedFields;
+      } catch (error) {
+        console.error("Error extracting fields:", error);
+        res.status(500).json({ error: "Failed to extract fields" });
+        return;
+      }
+
       res.status(200).json({
         message: "Audio uploaded successfully",
         fileName: file.originalname,
         fileSize: file.size,
         mimeType: file.mimetype,
         transcription,
+        extractedFields,
       });
     } catch (error) {
       console.error("Error processing audio upload:", error);

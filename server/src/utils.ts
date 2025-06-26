@@ -49,3 +49,28 @@ export const transcribeAudio = async (audioBuffer: Buffer, language?: string): P
     throw new Error("Failed to transcribe audio");
   }
 };
+
+export const getExtractedFields = async (fields : string[], transcription : string): Promise<{name: string; value: string}[]> => {
+  try {
+    const response = await fetch("http://localhost:8000/extract", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ pdf_field_names: fields, transcription }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Extraction service error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.fields.map((field: { name: string; value: string }) => ({
+      name: field.name,
+      value: field.value,
+    }));
+  } catch (e) {
+    console.error("Error extracting fields:", e);
+    throw new Error("LLM extraction failed");
+  }
+};

@@ -16,7 +16,7 @@
 
 -  [x] Set up Whisper API integration 
 
--  [ ] Configure Ollama/Mistral for local LLM processing 
+-  [x] Configure Ollama/Mistral for local LLM processing 
 
 -  [x] Set up audio recording libraries (e.g., react-media-recorder) 
 
@@ -57,11 +57,11 @@
 
 1. Local LLM Setup 
 
--  [ ] Configure Ollama with Mistral model 		
+-  [x] Configure Ollama with Mistral model 		
 
--  [ ] Create LLM service interface 
+-  [x] Create LLM service interface 
 
--  [ ] Implement prompt engineering for form field extraction
+-  [x] Implement prompt engineering for form field extraction
 
 -  [ ] Add context management extracted fields
 
