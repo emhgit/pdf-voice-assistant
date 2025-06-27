@@ -7,6 +7,7 @@ import audioRouter from "./audioRouter";
 import transcriptionRouter from "./transcriptionRouter";
 import extractRouter from "./extractRouter";
 import downloadRouter from "./downloadRouter";
+import { WebSocketServer } from "ws";
 
 // If you see a TS error for 'cors', run: npm i --save-dev @types/cors
 
@@ -55,6 +56,8 @@ export const validateSessionId: express.RequestHandler = (req, res, next) => {
 
   next();
 };
+
+const wss = new WebSocketServer({ port: 2025 });
 
 // start the server
 app.listen(port, () => {

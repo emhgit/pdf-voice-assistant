@@ -35,77 +35,71 @@ router.get("/", validateSessionId, (req: express.Request, res: express.Response)
   res.send(session.audioBuffer);
 });
 
-// POST /api/audio (audio upload)
+// POST /api/audio - Kick off async processing
 router.post(
   "/",
   validateSessionId,
   upload.single("audio"),
   async (req: express.Request, res: express.Response) => {
-    try {
-      const file = (req as MulterRequest).file;
-      const sessionToken = req.sessionToken;
+    const file = (req as MulterRequest).file;
+    const sessionToken = req.sessionToken!; // Validated by middleware
 
-      if (!file) {
-        res.status(400).json({ error: "No audio file uploaded" });
-        return;
-      }
-
-      if (!sessionToken) {
-        res.status(401).json({ error: "No session token provided" });
-        return;
-      }
-
-      const session = sessionStore.get(sessionToken);
-      if (!session) {
-        res.status(404).json({ error: "Session not found" });
-        return;
-      }
-
-      // Store the audio buffer in the session
-      session.audioBuffer = file.buffer;
-
-      // Transcribe audio and store transcription
-      let transcription = null;
-      try {
-        transcription = await transcribeAudio(file.buffer);
-        session.transcription = transcription;
-      } catch (err) {
-        console.error("Transcription failed:", err);
-      }
-      console.log("Transcription: ", transcription);
-
-      const pdfFields = session.pdfFields;
-      if (!pdfFields) {
-        res.status(400).json({ error: "PDF fields not available" });
-        return;
-      }
-      // Extract key-value pairs from transcription
-      let extractedFields = null;
-      try {
-        extractedFields = await getExtractedFields(
-          pdfFields.map((field) => field.name),
-          transcription!
-        );
-        session.extractedFields = extractedFields;
-      } catch (error) {
-        console.error("Error extracting fields:", error);
-        res.status(500).json({ error: "Failed to extract fields" });
-        return;
-      }
-
-      res.status(200).json({
-        message: "Audio uploaded successfully",
-        fileName: file.originalname,
-        fileSize: file.size,
-        mimeType: file.mimetype,
-        transcription,
-        extractedFields,
-      });
-    } catch (error) {
-      console.error("Error processing audio upload:", error);
-      res.status(500).json({ error: "Failed to process audio upload" });
+    if (!file) {
+      return res.status(400).json({ error: "No audio file uploaded" });
     }
+
+    const session = sessionStore.get(sessionToken)!;
+    session.audioBuffer = file.buffer;
+
+    // Immediate response - processing happens in background
+    res.status(202).json({ message: "Processing started" });
+
+    // Start async workflow
+    processAudioWithWebSocketUpdates(sessionToken);
   }
 );
+
+// Async processor with WebSocket updates
+async function processAudioWithWebSocketUpdates(sessionToken: string) {
+  const session = sessionStore.get(sessionToken)!;
+  const ws = websocketSessions.get(sessionToken);
+
+  try {
+    // Stage 1: Transcription
+    ws?.send(JSON.stringify({ 
+      type: "status", 
+      status: "transcribing",
+      progress: 20 
+    }));
+
+    session.transcription = await transcribeAudio(session.audioBuffer);
+
+    // Stage 2: Field Extraction
+    ws?.send(JSON.stringify({
+      type: "status",
+      status: "extracting_fields",
+      progress: 60
+    }));
+
+    session.extractedFields = await getExtractedFields(
+      session.pdfFields.map(f => f.name),
+      session.transcription!
+    );
+
+    // Final result
+    ws?.send(JSON.stringify({
+      type: "complete",
+      data: {
+        transcription: session.transcription,
+        extractedFields: session.extractedFields
+      }
+    }));
+  } catch (error) {
+    ws?.send(JSON.stringify({
+      type: "error",
+      error: error.message
+    }));
+  }
+}
 
 export default router; 
