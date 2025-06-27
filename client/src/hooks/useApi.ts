@@ -34,6 +34,7 @@ interface UseApiState<T> {
   data: T | null;
   loading: boolean;
   error: string | null;
+  initialized: boolean;
 }
 
 function useApiState<T>() {
@@ -41,6 +42,7 @@ function useApiState<T>() {
     data: null,
     loading: false,
     error: null,
+    initialized: false,
   });
 
   const setLoading = useCallback((loading: boolean) => {
@@ -48,11 +50,16 @@ function useApiState<T>() {
   }, []);
 
   const setData = useCallback((data: T) => {
-    setState({ data, loading: false, error: null });
+    setState({ data, loading: false, error: null, initialized: true });
   }, []);
 
   const setError = useCallback((error: string) => {
-    setState({ data: null, loading: false, error });
+    setState((prev) => ({
+      ...prev,
+      loading: false,
+      error: prev.initialized ? error : null, // Only show error after initialization
+      initialized: true,
+    }));
   }, []);
 
   return { ...state, setLoading, setData, setError };
@@ -60,7 +67,7 @@ function useApiState<T>() {
 
 // PDF related hooks
 export const usePdfFile = () => {
-  const { data, loading, error, setLoading, setData, setError } =
+  const { data, loading, error, setLoading, setData, setError, initialized } =
     useApiState<File>();
 
   const fetchPdf = useCallback(async () => {
@@ -83,21 +90,24 @@ export const usePdfFile = () => {
   }, [setLoading, setData, setError]);
 
   useEffect(() => {
-    fetchPdf();
-  }, [fetchPdf]);
+    if (localStorage.getItem("sessionToken") || initialized) {
+      fetchPdf();
+    }
+  }, [fetchPdf, initialized]);
 
   // Expose setData as setPdfFile for external use
   return {
     pdfFile: data,
     loading,
-    error,
+    error: initialized ? error : null,
     refetch: fetchPdf,
     setPdfFile: setData,
   };
 };
 
 export const useUploadPdf = () => {
-  const { loading, error, setLoading, setError } = useApiState<File>();
+  const { loading, error, setLoading, setError, initialized } =
+    useApiState<File>();
 
   const uploadPdf = useCallback(
     async (file: File) => {
@@ -126,12 +136,12 @@ export const useUploadPdf = () => {
     [setLoading, setError]
   );
 
-  return { uploadPdf, loading, error };
+  return { uploadPdf, loading, error: initialized ? error : null };
 };
 
 // Audio related hooks
 export const useAudioFile = () => {
-  const { data, loading, error, setLoading, setData, setError } =
+  const { data, loading, error, setLoading, setData, setError, initialized } =
     useApiState<Blob>();
 
   const fetchAudio = useCallback(async () => {
@@ -151,21 +161,24 @@ export const useAudioFile = () => {
   }, [setLoading, setData, setError]);
 
   useEffect(() => {
-    fetchAudio();
-  }, [fetchAudio]);
+    if (initialized) {
+      fetchAudio();
+    }
+  }, [fetchAudio, initialized]);
 
   // Expose setData as setAudioBlob for external use
   return {
     audioBlob: data,
     loading,
-    error,
+    error: initialized ? error : null,
     refetch: fetchAudio,
     setAudioBlob: setData,
   };
 };
 
 export const useUploadAudio = () => {
-  const { loading, error, setLoading, setError } = useApiState<Blob>();
+  const { loading, error, setLoading, setError, initialized } =
+    useApiState<Blob>();
 
   const uploadAudio = useCallback(
     async (file: File) => {
@@ -190,12 +203,12 @@ export const useUploadAudio = () => {
     [setLoading, setError]
   );
 
-  return { uploadAudio, loading, error };
+  return { uploadAudio, loading, error: initialized ? error : null };
 };
 
 // Transcription related hooks
 export const useTranscription = () => {
-  const { data, loading, error, setLoading, setData, setError } =
+  const { data, loading, error, setLoading, setData, setError, initialized } =
     useApiState<any>();
 
   const fetchTranscription = useCallback(async () => {
@@ -217,20 +230,23 @@ export const useTranscription = () => {
   }, [setLoading, setData, setError]);
 
   useEffect(() => {
-    fetchTranscription();
-  }, [fetchTranscription]);
+    if (initialized) {
+      fetchTranscription();
+    }
+  }, [fetchTranscription, initialized]);
 
   return {
     transcription: data,
     setTranscription: setData,
     loading,
-    error,
+    error: initialized ? error : null,
     refetch: fetchTranscription,
   };
 };
 
 export const useProcessTranscription = () => {
-  const { loading, error, setLoading, setError } = useApiState<any>();
+  const { loading, error, setLoading, setError, initialized } =
+    useApiState<any>();
 
   const processTranscription = useCallback(
     async (audioBlob: Blob) => {
@@ -257,11 +273,11 @@ export const useProcessTranscription = () => {
     [setLoading, setError]
   );
 
-  return { processTranscription, loading, error };
+  return { processTranscription, loading, error: initialized ? error : null };
 };
 
 export const useExtractedFields = () => {
-  const { data, loading, error, setLoading, setData, setError } =
+  const { data, loading, error, setLoading, setData, setError, initialized } =
     useApiState<{ name: string; value: string }[] | null>();
 
   const fetchExtractedFields = useCallback(async () => {
@@ -283,14 +299,16 @@ export const useExtractedFields = () => {
   }, [setLoading, setData, setError]);
 
   useEffect(() => {
-    fetchExtractedFields();
-  }, [fetchExtractedFields]);
+    if (initialized) {
+      fetchExtractedFields();
+    }
+  }, [fetchExtractedFields, initialized]);
 
   return {
     extractedFields: data,
     setExtractedFields: setData,
-    extractedFieldsLoading : loading,
-    extractedFieldsError : error,
+    extractedFieldsLoading: loading,
+    extractedFieldsError: initialized ? error : null,
     refetchExtractedFields: fetchExtractedFields,
   };
-}
+};
