@@ -1,5 +1,5 @@
 import express from "express";
-import { sessionStore, upload, MulterRequest } from "./shared";
+import { sessionStore, upload, MulterRequest, websocketSessions } from "./shared";
 import { getExtractedFields, transcribeAudio } from "./utils";
 import { validateSessionId } from ".";
 
@@ -45,9 +45,10 @@ router.post(
     const sessionToken = req.sessionToken!; // Validated by middleware
 
     if (!file) {
-      return res.status(400).json({ error: "No audio file uploaded" });
+      res.status(400).json({ error: "No audio file uploaded" });
+      return;
     }
-
+    
     const session = sessionStore.get(sessionToken)!;
     session.audioBuffer = file.buffer;
 
@@ -70,7 +71,11 @@ async function processAudioWithWebSocketUpdates(sessionToken: string) {
       type: "status", 
       status: "transcribing",
       progress: 20 
-    }));
+    }));    
+
+    if (!session.audioBuffer) {
+      throw new Error("No audio buffer found for transcription");
+    }
 
     session.transcription = await transcribeAudio(session.audioBuffer);
 
@@ -80,6 +85,10 @@ async function processAudioWithWebSocketUpdates(sessionToken: string) {
       status: "extracting_fields",
       progress: 60
     }));
+
+    if (!session.pdfFields || session.pdfFields.length === 0) {
+      throw new Error("No PDF fields found for extraction");
+    }
 
     session.extractedFields = await getExtractedFields(
       session.pdfFields.map(f => f.name),
@@ -94,7 +103,7 @@ async function processAudioWithWebSocketUpdates(sessionToken: string) {
         extractedFields: session.extractedFields
       }
     }));
-  } catch (error) {
+  } catch (error : any) {
     ws?.send(JSON.stringify({
       type: "error",
       error: error.message
