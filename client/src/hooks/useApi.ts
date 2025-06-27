@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 const API_BASE_URL = "http://localhost:2008/api";
 
@@ -51,17 +51,17 @@ function useApiState<T>() {
   });
 
   const setLoading = useCallback((loading: boolean) => {
-    setState((prev) => ({ 
-      ...prev, 
-      status: loading ? Status.Loading : Status.Idle 
+    setState((prev) => ({
+      ...prev,
+      status: loading ? Status.Loading : Status.Idle,
     }));
   }, []);
 
   const setData = useCallback((data: T) => {
-    setState({ 
-      data, 
-      status: Status.Success, 
-      initialized: true 
+    setState({
+      data,
+      status: Status.Success,
+      initialized: true,
     });
   }, []);
 
@@ -73,13 +73,13 @@ function useApiState<T>() {
     }));
   }, []);
 
-  return { 
-    ...state, 
-    setLoading, 
-    setData, 
+  return {
+    ...state,
+    setLoading,
+    setData,
     setError,
     loading: state.status === Status.Loading,
-    error: state.status === Status.Error
+    error: state.status === Status.Error,
   };
 }
 
@@ -117,15 +117,15 @@ export const usePdfFile = () => {
   return {
     pdfFile: data,
     loading: status === Status.Loading,
-    error: initialized && status === Status.Error ? "Failed to fetch PDF" : null,
+    error:
+      initialized && status === Status.Error ? "Failed to fetch PDF" : null,
     refetch: fetchPdf,
     setPdfFile: setData,
   };
 };
 
 export const useUploadPdf = () => {
-  const { status, setLoading, setError, initialized } =
-    useApiState<File>();
+  const { status, setLoading, setError, initialized } = useApiState<File>();
 
   const uploadPdf = useCallback(
     async (file: File) => {
@@ -154,10 +154,11 @@ export const useUploadPdf = () => {
     [setLoading, setError]
   );
 
-  return { 
-    uploadPdf, 
-    loading: status === Status.Loading, 
-    error: initialized && status === Status.Error ? "Failed to upload PDF" : null 
+  return {
+    uploadPdf,
+    loading: status === Status.Loading,
+    error:
+      initialized && status === Status.Error ? "Failed to upload PDF" : null,
   };
 };
 
@@ -192,15 +193,15 @@ export const useAudioFile = () => {
   return {
     audioBlob: data,
     loading: status === Status.Loading,
-    error: initialized && status === Status.Error ? "Failed to fetch audio" : null,
+    error:
+      initialized && status === Status.Error ? "Failed to fetch audio" : null,
     refetch: fetchAudio,
     setAudioBlob: setData,
   };
 };
 
 export const useUploadAudio = () => {
-  const { status, setLoading, setError, initialized } =
-    useApiState<Blob>();
+  const { status, setLoading, setError, initialized } = useApiState<Blob>();
 
   const uploadAudio = useCallback(
     async (file: File) => {
@@ -225,10 +226,11 @@ export const useUploadAudio = () => {
     [setLoading, setError]
   );
 
-  return { 
-    uploadAudio, 
-    loading: status === Status.Loading, 
-    error: initialized && status === Status.Error ? "Failed to upload audio" : null 
+  return {
+    uploadAudio,
+    loading: status === Status.Loading,
+    error:
+      initialized && status === Status.Error ? "Failed to upload audio" : null,
   };
 };
 
@@ -265,14 +267,16 @@ export const useTranscription = () => {
     transcription: data,
     setTranscription: setData,
     loading: status === Status.Loading,
-    error: initialized && status === Status.Error ? "Failed to fetch transcription" : null,
+    error:
+      initialized && status === Status.Error
+        ? "Failed to fetch transcription"
+        : null,
     refetch: fetchTranscription,
   };
 };
 
 export const useProcessTranscription = () => {
-  const { status, setLoading, setError, initialized } =
-    useApiState<any>();
+  const { status, setLoading, setError, initialized } = useApiState<any>();
 
   const processTranscription = useCallback(
     async (audioBlob: Blob) => {
@@ -299,10 +303,13 @@ export const useProcessTranscription = () => {
     [setLoading, setError]
   );
 
-  return { 
-    processTranscription, 
-    loading: status === Status.Loading, 
-    error: initialized && status === Status.Error ? "Failed to process transcription" : null 
+  return {
+    processTranscription,
+    loading: status === Status.Loading,
+    error:
+      initialized && status === Status.Error
+        ? "Failed to process transcription"
+        : null,
   };
 };
 
@@ -338,7 +345,64 @@ export const useExtractedFields = () => {
     extractedFields: data,
     setExtractedFields: setData,
     extractedFieldsLoading: status === Status.Loading,
-    extractedFieldsError: initialized && status === Status.Error ? "Failed to fetch extracted fields" : null,
+    extractedFieldsError:
+      initialized && status === Status.Error
+        ? "Failed to fetch extracted fields"
+        : null,
     refetchExtractedFields: fetchExtractedFields,
   };
 };
+
+// hooks/useWebSocket.ts - Improved version
+export const useWebSocket = (shouldConnect: boolean) => {
+  const wsRef = useRef<WebSocket | null>(null);
+  const [state, setState] = useState({
+    connected: false,
+    status: "idle",
+    error: null as string | null,
+    data: null as any
+  });
+
+  useEffect(() => {
+    if (!shouldConnect) return;
+
+    const sessionToken = localStorage.getItem("sessionToken");
+    if (!sessionToken) return;
+
+    const socket = new WebSocket(`ws://localhost:2025?token=${sessionToken}`);
+    wsRef.current = socket;
+
+    // Event handlers
+    socket.onopen =  () => setState(prev => ({...prev, connected: true, error: null}));
+    socket.onmessage =  (event: MessageEvent) => {
+      const data = JSON.parse(event.data);
+      setState(prev => ({ ...prev, ...handleWebSocketMessage(data) }));
+    };
+    socket.onerror = () => setState(prev => ({...prev, error: "Connection error"}));
+    socket.onclose = () => setState(prev => ({...prev, connected: false}));
+
+    return () => {
+      socket.onopen = null;
+      socket.onmessage = null;
+      socket.onerror = null;
+      socket.onclose = null;
+      socket.close();
+    };
+  }, [shouldConnect]);
+
+  return {
+    ...state,
+    ws: wsRef.current,
+    send: (data: any) => wsRef.current?.send(JSON.stringify(data))
+  };
+};
+
+// Helper function
+function handleWebSocketMessage(data: any) {
+  switch (data.type) {
+    case "status": return { status: data.status };
+    case "complete": return { data: data.data, status: "complete" };
+    case "error": return { error: data.error, status: "error" };
+    default: return {};
+  }
+}

@@ -26,24 +26,21 @@ const wss = new WebSocketServer({ port: 2025 });
 export const websocketSessions = new Map<string, WebSocket>();
 
 wss.on("connection", (ws, req) => {
-    const authHeader = req.headers["authorization"];
+  const url = req.url || "";
+  const params = new URLSearchParams(url.split("?")[1] || "");
+  console.log("params", params);
+  const token = params.get("token");
+  console.log("token", token);
+  if (!token) {
+    return;
+  }
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return;
-    }
-    
-    const token = authHeader.split(" ")[1];
-
-    if (token) addWebSocketToSession(token, ws);
-    ws.on("close", () => removeWebSocketFromSession(token));
-  });
-
+  if (token) addWebSocketToSession(token, ws);
+  ws.on("close", () => removeWebSocketFromSession(token));
+});
 
 // 2. create a function to add a websocket to the map
-export function addWebSocketToSession(
-  sessionId: string,
-  ws: WebSocket
-): void {
+export function addWebSocketToSession(sessionId: string, ws: WebSocket): void {
   if (!websocketSessions.has(sessionId)) {
     websocketSessions.set(sessionId, ws);
   } else {
@@ -61,4 +58,4 @@ export function removeWebSocketFromSession(sessionId: string): void {
 }
 
 const multer = require("multer");
-export const upload = multer({ storage: multer.memoryStorage() }); //store files in memory storage 
+export const upload = multer({ storage: multer.memoryStorage() }); //store files in memory storage

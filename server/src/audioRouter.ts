@@ -1,5 +1,10 @@
 import express from "express";
-import { sessionStore, upload, MulterRequest, websocketSessions } from "./shared";
+import {
+  sessionStore,
+  upload,
+  MulterRequest,
+  websocketSessions,
+} from "./shared";
 import { getExtractedFields, transcribeAudio } from "./utils";
 import { validateSessionId } from ".";
 
@@ -15,25 +20,29 @@ declare global {
 const router = express.Router();
 
 // GET /api/audio (audio blob)
-router.get("/", validateSessionId, (req: express.Request, res: express.Response) => {
-  const sessionToken = req.sessionToken;
-  if (!sessionToken) {
-    res.status(401).json({ error: "No session token provided" });
-    return;
+router.get(
+  "/",
+  validateSessionId,
+  (req: express.Request, res: express.Response) => {
+    const sessionToken = req.sessionToken;
+    if (!sessionToken) {
+      res.status(401).json({ error: "No session token provided" });
+      return;
+    }
+    const session = sessionStore.get(sessionToken);
+    if (!session || !session.pdfBuffer) {
+      res.status(404).json({ error: "PDF not found" });
+      return;
+    }
+    if (!session.audioBuffer) {
+      res.status(404).json({ error: "Audio not found" });
+      return;
+    }
+    res.setHeader("Content-Type", "audio/webm");
+    res.setHeader("Content-Disposition", "attachment; filename=audio.webm");
+    res.send(session.audioBuffer);
   }
-  const session = sessionStore.get(sessionToken);
-  if (!session || !session.pdfBuffer) {
-    res.status(404).json({ error: "PDF not found" });
-    return;
-  }
-  if (!session.audioBuffer) {
-    res.status(404).json({ error: "Audio not found" });
-    return;
-  }
-  res.setHeader("Content-Type", "audio/webm");
-  res.setHeader("Content-Disposition", "attachment; filename=audio.webm");
-  res.send(session.audioBuffer);
-});
+);
 
 // POST /api/audio - Kick off async processing
 router.post(
@@ -48,7 +57,7 @@ router.post(
       res.status(400).json({ error: "No audio file uploaded" });
       return;
     }
-    
+
     const session = sessionStore.get(sessionToken)!;
     session.audioBuffer = file.buffer;
 
@@ -67,11 +76,13 @@ async function processAudioWithWebSocketUpdates(sessionToken: string) {
 
   try {
     // Stage 1: Transcription
-    ws?.send(JSON.stringify({ 
-      type: "status", 
-      status: "transcribing",
-      progress: 20 
-    }));    
+    ws?.send(
+      JSON.stringify({
+        type: "status",
+        status: "transcribing",
+        progress: 20,
+      })
+    );
 
     if (!session.audioBuffer) {
       throw new Error("No audio buffer found for transcription");
@@ -80,35 +91,41 @@ async function processAudioWithWebSocketUpdates(sessionToken: string) {
     session.transcription = await transcribeAudio(session.audioBuffer);
 
     // Stage 2: Field Extraction
-    ws?.send(JSON.stringify({
-      type: "status",
-      status: "extracting_fields",
-      progress: 60
-    }));
+    ws?.send(
+      JSON.stringify({
+        type: "status",
+        status: "extracting_fields",
+        progress: 60,
+      })
+    );
 
     if (!session.pdfFields || session.pdfFields.length === 0) {
       throw new Error("No PDF fields found for extraction");
     }
 
     session.extractedFields = await getExtractedFields(
-      session.pdfFields.map(f => f.name),
+      session.pdfFields.map((f) => f.name),
       session.transcription!
     );
 
     // Final result
-    ws?.send(JSON.stringify({
-      type: "complete",
-      data: {
-        transcription: session.transcription,
-        extractedFields: session.extractedFields
-      }
-    }));
-  } catch (error : any) {
-    ws?.send(JSON.stringify({
-      type: "error",
-      error: error.message
-    }));
+    ws?.send(
+      JSON.stringify({
+        type: "complete",
+        data: {
+          transcription: session.transcription,
+          extractedFields: session.extractedFields,
+        },
+      })
+    );
+  } catch (error: any) {
+    ws?.send(
+      JSON.stringify({
+        type: "error",
+        error: error.message,
+      })
+    );
   }
 }
 
-export default router; 
+export default router;

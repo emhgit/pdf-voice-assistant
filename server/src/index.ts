@@ -57,8 +57,6 @@ export const validateSessionId: express.RequestHandler = (req, res, next) => {
   next();
 };
 
-const wss = new WebSocketServer({ port: 2025 });
-
 // start the server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
