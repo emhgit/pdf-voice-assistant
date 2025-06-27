@@ -28,8 +28,6 @@
 
 - [x] Implement PDF preview using iframe
 
-- [ ] Add drag-and-drop support
-
 - [x] Implement file validation
 
 * [x] Add PDF Context for global state tracking
@@ -66,17 +64,19 @@
 
 - [x] Implement prompt engineering for form field extraction
 
-- [ ] Add context management extracted fields
+- [ ] Add full PDF Text for context management of extracted fields
 
 1. Data Processing
 
-- [ ] Create JSON schema for form field mapping
+- [x] Create JSON schema for form field mapping
 
 - [x] Implement field value extraction from LLM response
 
 - [ ] Add validation for extracted data
 
 - [ ] Create error handling for mismatched fields
+
+- [ ] Create client side UI for feedback loop
 
 - [x] Add JSON context for global state tracking
 
