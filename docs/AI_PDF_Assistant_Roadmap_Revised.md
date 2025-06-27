@@ -58,6 +58,8 @@
 
 1. Local LLM Setup
 
+- [ ] Add websockets
+
 - [x] Configure Ollama with Mistral model
 
 - [x] Create LLM service interface
@@ -77,6 +79,8 @@
 - [ ] Create error handling for mismatched fields
 
 - [ ] Create client side UI for feedback loop
+
+- [ ] Improve LLM prompt (specificity)
 
 - [x] Add JSON context for global state tracking
 
