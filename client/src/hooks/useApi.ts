@@ -29,45 +29,63 @@ const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
   return response;
 };
 
+enum Status {
+  Idle = "idle",
+  Loading = "loading",
+  Success = "success",
+  Error = "error",
+}
+
 // Custom hook for managing API state
 interface UseApiState<T> {
   data: T | null;
-  loading: boolean;
-  error: string | null;
+  status: Status;
   initialized: boolean;
 }
 
 function useApiState<T>() {
   const [state, setState] = useState<UseApiState<T>>({
     data: null,
-    loading: false,
-    error: null,
+    status: Status.Idle,
     initialized: false,
   });
 
   const setLoading = useCallback((loading: boolean) => {
-    setState((prev) => ({ ...prev, loading, error: null }));
+    setState((prev) => ({ 
+      ...prev, 
+      status: loading ? Status.Loading : Status.Idle 
+    }));
   }, []);
 
   const setData = useCallback((data: T) => {
-    setState({ data, loading: false, error: null, initialized: true });
+    setState({ 
+      data, 
+      status: Status.Success, 
+      initialized: true 
+    });
   }, []);
 
   const setError = useCallback((error: string) => {
     setState((prev) => ({
       ...prev,
-      loading: false,
-      error: prev.initialized ? error : null, // Only show error after initialization
+      status: prev.initialized ? Status.Error : Status.Idle, // Only show error after initialization
       initialized: true,
     }));
   }, []);
 
-  return { ...state, setLoading, setData, setError };
+  return { 
+    ...state, 
+    setLoading, 
+    setData, 
+    setError,
+    loading: state.status === Status.Loading,
+    error: state.status === Status.Error
+  };
 }
 
 // PDF related hooks
 export const usePdfFile = () => {
-  const { data, loading, error, setLoading, setData, setError, initialized } =
+  const { data, status, setLoading, setData, setError, initialized } =
     useApiState<File>();
 
   const fetchPdf = useCallback(async () => {
@@ -98,15 +116,15 @@ export const usePdfFile = () => {
   // Expose setData as setPdfFile for external use
   return {
     pdfFile: data,
-    loading,
-    error: initialized ? error : null,
+    loading: status === Status.Loading,
+    error: initialized && status === Status.Error ? "Failed to fetch PDF" : null,
     refetch: fetchPdf,
     setPdfFile: setData,
   };
 };
 
 export const useUploadPdf = () => {
-  const { loading, error, setLoading, setError, initialized } =
+  const { status, setLoading, setError, initialized } =
     useApiState<File>();
 
   const uploadPdf = useCallback(
@@ -136,12 +154,16 @@ export const useUploadPdf = () => {
     [setLoading, setError]
   );
 
-  return { uploadPdf, loading, error: initialized ? error : null };
+  return { 
+    uploadPdf, 
+    loading: status === Status.Loading, 
+    error: initialized && status === Status.Error ? "Failed to upload PDF" : null 
+  };
 };
 
 // Audio related hooks
 export const useAudioFile = () => {
-  const { data, loading, error, setLoading, setData, setError, initialized } =
+  const { data, status, setLoading, setData, setError, initialized } =
     useApiState<Blob>();
 
   const fetchAudio = useCallback(async () => {
@@ -169,15 +191,15 @@ export const useAudioFile = () => {
   // Expose setData as setAudioBlob for external use
   return {
     audioBlob: data,
-    loading,
-    error: initialized ? error : null,
+    loading: status === Status.Loading,
+    error: initialized && status === Status.Error ? "Failed to fetch audio" : null,
     refetch: fetchAudio,
     setAudioBlob: setData,
   };
 };
 
 export const useUploadAudio = () => {
-  const { loading, error, setLoading, setError, initialized } =
+  const { status, setLoading, setError, initialized } =
     useApiState<Blob>();
 
   const uploadAudio = useCallback(
@@ -203,12 +225,16 @@ export const useUploadAudio = () => {
     [setLoading, setError]
   );
 
-  return { uploadAudio, loading, error: initialized ? error : null };
+  return { 
+    uploadAudio, 
+    loading: status === Status.Loading, 
+    error: initialized && status === Status.Error ? "Failed to upload audio" : null 
+  };
 };
 
 // Transcription related hooks
 export const useTranscription = () => {
-  const { data, loading, error, setLoading, setData, setError, initialized } =
+  const { data, status, setLoading, setData, setError, initialized } =
     useApiState<any>();
 
   const fetchTranscription = useCallback(async () => {
@@ -238,14 +264,14 @@ export const useTranscription = () => {
   return {
     transcription: data,
     setTranscription: setData,
-    loading,
-    error: initialized ? error : null,
+    loading: status === Status.Loading,
+    error: initialized && status === Status.Error ? "Failed to fetch transcription" : null,
     refetch: fetchTranscription,
   };
 };
 
 export const useProcessTranscription = () => {
-  const { loading, error, setLoading, setError, initialized } =
+  const { status, setLoading, setError, initialized } =
     useApiState<any>();
 
   const processTranscription = useCallback(
@@ -273,11 +299,15 @@ export const useProcessTranscription = () => {
     [setLoading, setError]
   );
 
-  return { processTranscription, loading, error: initialized ? error : null };
+  return { 
+    processTranscription, 
+    loading: status === Status.Loading, 
+    error: initialized && status === Status.Error ? "Failed to process transcription" : null 
+  };
 };
 
 export const useExtractedFields = () => {
-  const { data, loading, error, setLoading, setData, setError, initialized } =
+  const { data, status, setLoading, setData, setError, initialized } =
     useApiState<{ name: string; value: string }[] | null>();
 
   const fetchExtractedFields = useCallback(async () => {
@@ -307,8 +337,8 @@ export const useExtractedFields = () => {
   return {
     extractedFields: data,
     setExtractedFields: setData,
-    extractedFieldsLoading: loading,
-    extractedFieldsError: initialized ? error : null,
+    extractedFieldsLoading: status === Status.Loading,
+    extractedFieldsError: initialized && status === Status.Error ? "Failed to fetch extracted fields" : null,
     refetchExtractedFields: fetchExtractedFields,
   };
 };
