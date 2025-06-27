@@ -1,8 +1,8 @@
 import express from "express";
 import { Request } from "express";
+import { rateLimit } from "express-rate-limit";
 import type {
   PdfMetadata,
-  PdfUploadFormResponse,
 } from "../../shared/src/types";
 import { getExtractedFields, getPdfFields, transcribeAudio } from "./utils";
 
@@ -52,6 +52,15 @@ sessionStore.set("test-session", {
 
 console.log("Session Store Initialized: " + sessionStore.get("test-session"));
 */
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 50, // Limit each IP to 50 requests per windowMs
+  message: "Too many requests, please try again later.",
+});
+
+// Apply the rate limiting middleware to all requests
+app.use(limiter);
 
 //CORS Middleware
 app.use(cors());
