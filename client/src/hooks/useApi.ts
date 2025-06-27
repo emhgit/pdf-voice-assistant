@@ -111,7 +111,7 @@ export const usePdfFile = () => {
     if (localStorage.getItem("sessionToken") || initialized) {
       fetchPdf();
     }
-  }, [fetchPdf, initialized]);
+  }, [fetchPdf]);
 
   // Expose setData as setPdfFile for external use
   return {
@@ -186,7 +186,7 @@ export const useAudioFile = () => {
     if (initialized) {
       fetchAudio();
     }
-  }, [fetchAudio, initialized]);
+  }, [fetchAudio]);
 
   // Expose setData as setAudioBlob for external use
   return {
@@ -259,7 +259,7 @@ export const useTranscription = () => {
     if (initialized) {
       fetchTranscription();
     }
-  }, [fetchTranscription, initialized]);
+  }, [fetchTranscription]);
 
   return {
     transcription: data,
@@ -332,7 +332,7 @@ export const useExtractedFields = () => {
     if (initialized) {
       fetchExtractedFields();
     }
-  }, [fetchExtractedFields, initialized]);
+  }, [fetchExtractedFields]);
 
   return {
     extractedFields: data,
