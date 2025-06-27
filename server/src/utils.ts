@@ -1,5 +1,5 @@
 import { PDFDocument } from "pdf-lib";
-import { PdfField } from "../../shared/src/types";
+import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 
 export const getPdfFields = async (pdfBuffer: Buffer) => {
   const pdfDoc = await PDFDocument.load(pdfBuffer);
@@ -30,6 +30,29 @@ export const getPdfFields = async (pdfBuffer: Buffer) => {
   });
   return formFields;
 };
+
+// use this function asynchronously to extract text from a PDF buffer
+async function extractText(pdfBuffer: Buffer) {
+  const pdf = await getDocument({ data: pdfBuffer }).promise;
+  const textChunks: string[] = [];
+
+  const pagePromises = [];
+  for (let i = 1; i <= pdf.numPages; i++) {
+    pagePromises.push(pdf.getPage(i));
+  }
+
+  const pages = await Promise.all(pagePromises);
+
+  const contentPromises = pages.map(async (page) => {
+    const content = await page.getTextContent();
+    const text = content.items.map((item: any) => item.str).join(" ");
+    textChunks.push(text);
+  });
+
+  await Promise.all(contentPromises);
+
+  return textChunks.join("\n");
+}
 
 export const transcribeAudio = async (
   audioBuffer: Buffer,

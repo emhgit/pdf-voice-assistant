@@ -15,7 +15,8 @@
     "express": "^5.1.0",
     "express-rate-limit": "^7.5.1",
     "multer": "^2.0.1",
-    "pdf-lib": "^1.17.1"
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^5.3.31"
   },
   "devDependencies": {
     "@types/express": "^5.0.2",
