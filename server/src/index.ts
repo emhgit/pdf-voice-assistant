@@ -42,7 +42,7 @@ app.use("/api/extract", extractRouter);
 app.use("/api/download", downloadRouter);
 
 // Session ID validation middleware (activates after /api/pdf POST)
-const validateSessionId: express.RequestHandler = (req, res, next) => {
+export const validateSessionId: express.RequestHandler = (req, res, next) => {
   const authHeader = req.headers["authorization"];
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -55,9 +55,6 @@ const validateSessionId: express.RequestHandler = (req, res, next) => {
 
   next();
 };
-
-// Apply the middleware to all routes after /api/pdf POST
-app.use(validateSessionId);
 
 // start the server
 app.listen(port, () => {

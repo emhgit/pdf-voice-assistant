@@ -1,6 +1,7 @@
 import express from "express";
 import { sessionStore, upload, MulterRequest } from "./shared";
 import { getExtractedFields, transcribeAudio } from "./utils";
+import { validateSessionId } from ".";
 
 // Ensure Express.Request is extended with sessionToken (as in index.ts)
 declare global {
@@ -14,7 +15,7 @@ declare global {
 const router = express.Router();
 
 // GET /api/audio (audio blob)
-router.get("/", (req: express.Request, res: express.Response) => {
+router.get("/", validateSessionId, (req: express.Request, res: express.Response) => {
   const sessionToken = req.sessionToken;
   if (!sessionToken) {
     res.status(401).json({ error: "No session token provided" });
@@ -37,6 +38,7 @@ router.get("/", (req: express.Request, res: express.Response) => {
 // POST /api/audio (audio upload)
 router.post(
   "/",
+  validateSessionId,
   upload.single("audio"),
   async (req: express.Request, res: express.Response) => {
     try {

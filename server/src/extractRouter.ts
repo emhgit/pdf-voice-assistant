@@ -1,5 +1,6 @@
 import express from "express";
 import { sessionStore } from "./shared";
+import { validateSessionId } from ".";
 
 // Ensure Express.Request is extended with sessionToken (as in index.ts)
 declare global {
@@ -13,7 +14,7 @@ declare global {
 const router = express.Router();
 
 // GET /api/extract (get extracted key-value pairs)
-router.get("/", (req: express.Request, res: express.Response) => {
+router.get("/", validateSessionId, (req: express.Request, res: express.Response) => {
   const sessionToken = req.sessionToken;
   if (!sessionToken) {
     res.status(401).json({ error: "No session token provided" });
@@ -30,7 +31,7 @@ router.get("/", (req: express.Request, res: express.Response) => {
 });
 
 // PUT /api/extract (update extracted key-value pairs)
-router.put("/", (req: express.Request, res: express.Response) => {
+router.put("/", validateSessionId, (req: express.Request, res: express.Response) => {
   // Implement update logic here if needed
   res.status(501).json({ error: "Not implemented" });
 });

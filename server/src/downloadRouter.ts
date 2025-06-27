@@ -1,4 +1,5 @@
 import express from "express";
+import { validateSessionId } from ".";
 
 // Ensure Express.Request is extended with sessionToken (as in index.ts)
 declare global {
@@ -12,7 +13,7 @@ declare global {
 const router = express.Router();
 
 // GET /api/download (get finalized pdf)
-router.get("/", (req: express.Request, res: express.Response) => {
+router.get("/", validateSessionId, (req: express.Request, res: express.Response) => {
   // Implement finalized PDF download logic here if needed
   res.status(501).json({ error: "Not implemented" });
 });
