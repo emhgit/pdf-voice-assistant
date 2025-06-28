@@ -13,11 +13,15 @@ export interface MulterRequest extends Request {
 export const sessionStore = new Map<
   string,
   {
-    pdfBuffer?: Buffer;
-    pdfFields?: { name: string; type: string; isEmpty: boolean }[];
-    audioBuffer?: Buffer;
-    transcription?: string;
-    extractedFields?: Record<string, string>[];
+    pdfBuffer: Buffer | undefined;
+    pdfFields: { name: string; type: string; isEmpty: boolean }[] | undefined;
+    audioBuffer: Buffer | undefined;
+    transcription: string | undefined;
+    extractedFields: Record<string, string>[];
+    pdfReady: boolean;
+    audioReady: boolean;
+    transcriptionReady: boolean;
+    extractedFieldsReady: boolean;
   }
 >();
 

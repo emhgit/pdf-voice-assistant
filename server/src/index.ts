@@ -7,7 +7,7 @@ import audioRouter from "./audioRouter";
 import transcriptionRouter from "./transcriptionRouter";
 import extractRouter from "./extractRouter";
 import downloadRouter from "./downloadRouter";
-import { WebSocketServer } from "ws";
+import statusRouter from "./statusRouter";
 
 // If you see a TS error for 'cors', run: npm i --save-dev @types/cors
 
@@ -27,6 +27,7 @@ app.use(limiter);
 app.use(cors());
 
 // Register routers
+app.use("/api/status", statusRouter);
 app.use("/api/pdf", pdfRouter);
 app.use("/api/audio", audioRouter);
 app.use("/api/transcription", transcriptionRouter);
