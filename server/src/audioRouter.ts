@@ -6,7 +6,7 @@ import {
   websocketSessions,
 } from "./shared";
 import { getExtractedFields, transcribeAudio } from "./utils";
-import { validateSessionId } from ".";
+import { validateSessionId } from "./middleware";
 
 // Ensure Express.Request is extended with sessionToken (as in index.ts)
 declare global {

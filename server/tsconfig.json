@@ -111,6 +111,9 @@
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
   "references": [
-    { "path": "../shared" }
-  ]
+    { "path": "../shared" },
+  ],
+  "include": [
+    "src"
+  ],
 }

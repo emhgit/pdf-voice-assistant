@@ -73,6 +73,14 @@ const PdfUploadForm = () => {
       </div>
 
       <div>
+        {connected ? (
+          <p>WebSocket connected</p>
+        ) : (
+          <p>WebSocket not connected</p>
+        )}
+      </div>
+
+      <div>
         <NavButton title="Next" href={submitted ? "audio-upload-page" : ""} />
       </div>
     </div>

@@ -3,16 +3,7 @@ import crypto from "crypto";
 import { getPdfFields } from "./utils";
 import type { PdfMetadata } from "../../shared/src/types";
 import { sessionStore, upload, MulterRequest } from "./shared";
-import { validateSessionId } from ".";
-
-// Ensure Express.Request is extended with sessionToken (as in index.ts)
-declare global {
-  namespace Express {
-    interface Request {
-      sessionToken?: string;
-    }
-  }
-}
+import { validateSessionId } from "./middleware";
 
 const router = express.Router();
 

@@ -11,15 +11,6 @@ import { WebSocketServer } from "ws";
 
 // If you see a TS error for 'cors', run: npm i --save-dev @types/cors
 
-// Extend Express Request interface to include sessionToken
-declare global {
-  namespace Express {
-    interface Request {
-      sessionToken?: string;
-    }
-  }
-}
-
 const app = express();
 const port = 2008;
 
@@ -41,21 +32,6 @@ app.use("/api/audio", audioRouter);
 app.use("/api/transcription", transcriptionRouter);
 app.use("/api/extract", extractRouter);
 app.use("/api/download", downloadRouter);
-
-// Session ID validation middleware (activates after /api/pdf POST)
-export const validateSessionId: express.RequestHandler = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    res.status(401).json({ error: "Missing or invalid token" });
-    return;
-  }
-
-  const token = authHeader.split(" ")[1];
-  req.sessionToken = token;
-
-  next();
-};
 
 // start the server
 app.listen(port, () => {

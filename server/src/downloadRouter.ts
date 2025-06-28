@@ -1,5 +1,5 @@
 import express from "express";
-import { validateSessionId } from ".";
+import { validateSessionId } from "./middleware";
 
 // Ensure Express.Request is extended with sessionToken (as in index.ts)
 declare global {
