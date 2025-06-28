@@ -316,7 +316,7 @@ export const useTranscription = () => {
     if (initialized) {
       fetchTranscription();
     }
-  }, [fetchTranscription]);
+  }, [initialized, fetchTranscription]);
 
   return {
     transcription: data,
@@ -411,7 +411,7 @@ export const useExtractedFields = () => {
     if (initialized) {
       fetchExtractedFields();
     }
-  }, [fetchExtractedFields]);
+  }, [initialized, fetchExtractedFields]);
 
   return {
     extractedFields: data,
