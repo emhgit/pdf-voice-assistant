@@ -8,14 +8,14 @@ import { useWebSocket } from "../../hooks/useApi";
 
 const PdfUploadForm = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const { sessionToken, setSessionToken } = useAppContext();
   const { submitted, setSubmitted } = useSubmitted();
   const { pdfFile, pdfLoading, pdfError, uploadPdf, setPdfFile } =
     useAppContext();
-  const { connected } = useWebSocket(!!sessionStorage.getItem("sessionToken"));
+  const { connected } = useWebSocket(!!sessionToken);
 
   useEffect(() => {
     if (!pdfFile) return;
-
     const url = URL.createObjectURL(pdfFile);
     setPdfUrl(url);
     setSubmitted(true);
@@ -39,7 +39,7 @@ const PdfUploadForm = () => {
         pdfFile
       );
       if (pdfUploadFormResponse?.sessionId) {
-        localStorage.setItem("sessionToken", pdfUploadFormResponse.sessionId);
+        setSessionToken(pdfUploadFormResponse.sessionId);
       }
       // Optionally refetch or update state here
       setSubmitted(true);

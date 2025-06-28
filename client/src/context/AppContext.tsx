@@ -1,9 +1,13 @@
-import { createContext, useContext, type ReactNode } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 import { useExtractedFields, usePdfFile, useUploadPdf } from "../hooks/useApi";
 import { useAudioFile, useUploadAudio } from "../hooks/useApi";
 import { useTranscription, useProcessTranscription } from "../hooks/useApi";
 
 interface AppContextType {
+  // Session Token
+  sessionToken: string | null;
+  setSessionToken: (token: string | null) => void;
+
   // PDF state
   pdfFile: File | null;
   pdfLoading: boolean;
@@ -23,7 +27,9 @@ interface AppContextType {
   // Transcription state
   transcription: string;
   transcriptionLoading: boolean;
+  setTranscriptionLoading: (loading: boolean) => void;
   transcriptionError: string | null;
+  setTranscriptionError: (error: string) => void;
   processTranscription: (audioBlob: Blob) => Promise<any>;
   refetchTranscription: () => void;
   setTranscription: (transcription: string) => void;
@@ -33,12 +39,24 @@ interface AppContextType {
   setExtractedFields: (fields: { name: string; value: string }[]) => void;
   extractedFieldsLoading: boolean;
   extractedFieldsError: string | null;
+  setExtractedFieldsLoading: (loading: boolean) => void;
+  setExtractedFieldsError: (error: string) => void;
   refetchExtractedFields: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppContextProvider = ({ children }: { children: ReactNode }) => {
+  // Session Token
+  const [sessionToken, setSessionToken] = useState<string | null>(
+    localStorage.getItem("sessionToken") || null
+  );
+  const setSessionTokenHandler = async (token: string | null) => {
+    localStorage.setItem("sessionToken", token || "");
+    setSessionToken(token);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  };
+
   // PDF hooks
   const {
     pdfFile,
@@ -63,7 +81,9 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   const {
     transcription,
     loading: transcriptionLoading,
+    setTranscriptionLoading,
     error: transcriptionError,
+    setTranscriptionError,
     refetch: refetchTranscription,
     setTranscription,
   } = useTranscription();
@@ -73,12 +93,18 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   const {
     extractedFields,
     setExtractedFields,
-    extractedFieldsLoading, 
+    extractedFieldsLoading,
     extractedFieldsError,
+    setExtractedFieldsLoading,
+    setExtractedFieldsError,
     refetchExtractedFields,
   } = useExtractedFields();
 
   const value: AppContextType = {
+    // Session Token
+    sessionToken,
+    setSessionToken: setSessionTokenHandler,
+
     // PDF
     pdfFile,
     pdfLoading,
@@ -98,7 +124,9 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     // Transcription
     transcription,
     transcriptionLoading,
+    setTranscriptionLoading,
     transcriptionError,
+    setTranscriptionError,
     processTranscription,
     refetchTranscription,
     setTranscription,
@@ -107,7 +135,9 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     extractedFields,
     setExtractedFields,
     extractedFieldsLoading,
+    setExtractedFieldsLoading,
     extractedFieldsError,
+    setExtractedFieldsError,
     refetchExtractedFields,
   };
 

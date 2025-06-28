@@ -1,8 +1,37 @@
+import { useEffect } from "react";
 import { useAppContext } from "../../context/AppContext";
+import { useWebSocket } from "../../hooks/useApi";
 
 const ExtractedFieldsDisplay = () => {
-  const { extractedFields, extractedFieldsLoading, extractedFieldsError } =
-    useAppContext();
+  const {
+    extractedFields,
+    setExtractedFields,
+    extractedFieldsLoading,
+    setExtractedFieldsLoading,
+    extractedFieldsError,
+    setExtractedFieldsError,
+  } = useAppContext();
+  const { status, data, error } = useWebSocket(
+    !!localStorage.getItem("sessionToken")
+  );
+
+  // Handle WebSocket status updates
+  useEffect(() => {
+    if (status === "complete") {
+      setExtractedFields(data.extractedFields);
+      setExtractedFieldsLoading(false);
+    } else if (status === "extracting") {
+      console.log("LLM Processing...");
+      setExtractedFieldsLoading(true);
+    } else if (status === "error") {
+      console.error("WebSocket error:", error);
+      setExtractedFieldsLoading(false);
+      setExtractedFieldsError(
+        error || "An error occurred during LLM processing."
+      );
+    }
+  }, [status]);
+
   return (
     <div className="extracted-fields-display">
       <h2>Extracted Fields</h2>

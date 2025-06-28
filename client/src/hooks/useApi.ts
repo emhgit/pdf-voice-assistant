@@ -267,10 +267,12 @@ export const useTranscription = () => {
     transcription: data,
     setTranscription: setData,
     loading: status === Status.Loading,
+    setTranscriptionLoading: setLoading,
     error:
       initialized && status === Status.Error
         ? "Failed to fetch transcription"
         : null,
+    setTranscriptionError: setError,
     refetch: fetchTranscription,
   };
 };
@@ -345,6 +347,8 @@ export const useExtractedFields = () => {
     extractedFields: data,
     setExtractedFields: setData,
     extractedFieldsLoading: status === Status.Loading,
+    setExtractedFieldsLoading: setLoading,
+    setExtractedFieldsError: setError,
     extractedFieldsError:
       initialized && status === Status.Error
         ? "Failed to fetch extracted fields"
