@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAppContext } from "../../context/AppContext";
-import { useWebSocket } from "../../hooks/useApi";
+import { useWebSocketContext } from "../../context/WebSocketContext";
 
 const ExtractedFieldsDisplay = () => {
   const {
@@ -11,9 +11,7 @@ const ExtractedFieldsDisplay = () => {
     extractedFieldsError,
     setExtractedFieldsError,
   } = useAppContext();
-  const { status, data, error } = useWebSocket(
-    !!localStorage.getItem("sessionToken")
-  );
+  const { status, data, error } = useWebSocketContext();
 
   // Handle WebSocket status updates
   useEffect(() => {

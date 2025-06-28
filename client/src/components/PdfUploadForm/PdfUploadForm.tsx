@@ -4,15 +4,15 @@ import NavButton from "../NavButton/NavButton";
 import type { PdfUploadFormResponse } from "../../../../shared/src/types";
 import { useAppContext } from "../../context/AppContext";
 import { useSubmitted } from "../../hooks/useSubmitted";
-import { useWebSocket } from "../../hooks/useApi";
+import { useWebSocketContext } from "../../context/WebSocketContext";
 
 const PdfUploadForm = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const { sessionToken, setSessionToken } = useAppContext();
+  const { setSessionToken } = useAppContext();
   const { submitted, setSubmitted } = useSubmitted();
   const { pdfFile, pdfLoading, pdfError, uploadPdf, setPdfFile } =
     useAppContext();
-  const { connected } = useWebSocket(!!sessionToken);
+  const { connected } = useWebSocketContext();
 
   useEffect(() => {
     if (!pdfFile) return;

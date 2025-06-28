@@ -24,8 +24,6 @@ const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
     throw new Error(`API Error: ${response.status} ${response.statusText}`);
   }
 
-  console.log(response);
-
   return response;
 };
 
@@ -102,6 +100,7 @@ export const usePdfFile = () => {
         type: "application/pdf",
       });
       setData(file);
+      console.log("PDF fetched successfully");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch PDF");
     }
@@ -145,6 +144,7 @@ export const useUploadPdf = () => {
 
         const result = await response.json();
         setLoading(false);
+        console.log("PDF uploaded successfully");
         return result;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to upload PDF");
@@ -178,6 +178,7 @@ export const useAudioFile = () => {
       const response = await apiFetch("/audio");
       const blob = await response.blob();
       setData(blob);
+      console.log("Audio fetched successfully");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch audio");
     }
@@ -217,6 +218,7 @@ export const useUploadAudio = () => {
 
         const result = await response.json();
         setLoading(false);
+        console.log("Audio uploaded successfully");
         return result;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to upload audio");
@@ -249,7 +251,10 @@ export const useTranscription = () => {
       setLoading(true);
       const response = await apiFetch("/transcription");
       const result = await response.json();
+      setLoading(false);
+      console.log("Transcription fetched successfully");
       setData(result);
+      console.log("Transcription data:", result);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to fetch transcription"
@@ -294,6 +299,7 @@ export const useProcessTranscription = () => {
 
         const result = await response.json();
         setLoading(false);
+        console.log("Transcription processed successfully");
         return result;
       } catch (err) {
         setError(
@@ -329,7 +335,9 @@ export const useExtractedFields = () => {
       setLoading(true);
       const response = await apiFetch("/extract");
       const result = await response.json();
+      setLoading(false);
       setData(result.fields);
+      console.log("Extracted fields fetched successfully");
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to fetch extracted fields"
@@ -364,7 +372,7 @@ export const useWebSocket = (shouldConnect: boolean) => {
     connected: false,
     status: "idle",
     error: null as string | null,
-    data: null as any
+    data: null as any,
   });
 
   useEffect(() => {
@@ -377,13 +385,15 @@ export const useWebSocket = (shouldConnect: boolean) => {
     wsRef.current = socket;
 
     // Event handlers
-    socket.onopen =  () => setState(prev => ({...prev, connected: true, error: null}));
-    socket.onmessage =  (event: MessageEvent) => {
+    socket.onopen = () =>
+      setState((prev) => ({ ...prev, connected: true, error: null }));
+    socket.onmessage = (event: MessageEvent) => {
       const data = JSON.parse(event.data);
-      setState(prev => ({ ...prev, ...handleWebSocketMessage(data) }));
+      setState((prev) => ({ ...prev, ...handleWebSocketMessage(data) }));
     };
-    socket.onerror = () => setState(prev => ({...prev, error: "Connection error"}));
-    socket.onclose = () => setState(prev => ({...prev, connected: false}));
+    socket.onerror = () =>
+      setState((prev) => ({ ...prev, error: "Connection error" }));
+    socket.onclose = () => setState((prev) => ({ ...prev, connected: false }));
 
     return () => {
       socket.onopen = null;
@@ -397,16 +407,20 @@ export const useWebSocket = (shouldConnect: boolean) => {
   return {
     ...state,
     ws: wsRef.current,
-    send: (data: any) => wsRef.current?.send(JSON.stringify(data))
+    send: (data: any) => wsRef.current?.send(JSON.stringify(data)),
   };
 };
 
 // Helper function
 function handleWebSocketMessage(data: any) {
   switch (data.type) {
-    case "status": return { status: data.status };
-    case "complete": return { data: data.data, status: "complete" };
-    case "error": return { error: data.error, status: "error" };
-    default: return {};
+    case "status":
+      return { status: data.status };
+    case "complete":
+      return { data: data.data, status: "complete" };
+    case "error":
+      return { error: data.error, status: "error" };
+    default:
+      return {};
   }
 }
