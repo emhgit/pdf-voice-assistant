@@ -28,12 +28,10 @@ router.post(
 
       // Generate a UUID for the session id to store in the session store
       const sessionId = crypto.randomUUID();
-      const fields = await getPdfFields(file.buffer);
-      console.log("fields: ", fields);
 
       sessionStore.set(sessionId, {
         pdfBuffer: file.buffer,
-        pdfFields: fields,
+        pdfFields: undefined,
         audioBuffer: undefined,
         transcription: undefined,
         extractedFields: [],
@@ -58,6 +56,12 @@ router.post(
         sessionId: sessionId,
         pdfMetadata,
       });
+
+      // Process PDF fields
+      const fields = await getPdfFields(file.buffer);
+      console.log("fields: ", fields);
+      const session = sessionStore.get(sessionId)!;
+      session.pdfFields = fields;
     } catch (error) {
       console.error("Error processing PDF upload:", error);
       res.status(500).json({ error: "Failed to process PDF upload" });

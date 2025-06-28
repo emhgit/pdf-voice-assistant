@@ -60,6 +60,7 @@ router.post(
 
     const session = sessionStore.get(sessionToken)!;
     session.audioBuffer = file.buffer;
+    session.audioReady = true;
 
     // Immediate response - processing happens in background
     res.status(202).json({ message: "Processing started" });
@@ -89,6 +90,7 @@ async function processAudioWithWebSocketUpdates(sessionToken: string) {
     }
 
     session.transcription = await transcribeAudio(session.audioBuffer);
+    session.transcriptionReady = true;
 
     // Stage 2: Field Extraction
     ws?.send(
@@ -107,6 +109,7 @@ async function processAudioWithWebSocketUpdates(sessionToken: string) {
       session.pdfFields.map((f) => f.name),
       session.transcription!
     );
+    session.extractedFieldsReady = true;
 
     // Final result
     ws?.send(
