@@ -94,7 +94,7 @@ async function processAudioWithWebSocketUpdates(sessionToken: string) {
     ws?.send(
       JSON.stringify({
         type: "status",
-        status: "extracting_fields",
+        status: "extracting",
         progress: 60,
       })
     );
@@ -122,7 +122,7 @@ async function processAudioWithWebSocketUpdates(sessionToken: string) {
     ws?.send(
       JSON.stringify({
         type: "error",
-        error: error.message,
+        error: new String(error.message),
       })
     );
   }

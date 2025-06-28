@@ -28,14 +28,10 @@ export const websocketSessions = new Map<string, WebSocket>();
 wss.on("connection", (ws, req) => {
   const url = req.url || "";
   const params = new URLSearchParams(url.split("?")[1] || "");
-  console.log("params", params);
   const token = params.get("token");
   console.log("token", token);
-  if (!token) {
-    return;
-  }
-
-  if (token) addWebSocketToSession(token, ws);
+  if (!token) return;
+  addWebSocketToSession(token, ws);
   ws.on("close", () => removeWebSocketFromSession(token));
 });
 
