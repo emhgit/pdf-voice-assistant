@@ -5,9 +5,9 @@ import cors from "cors";
 import pdfRouter from "./pdfRouter";
 import audioRouter from "./audioRouter";
 import transcriptionRouter from "./transcriptionRouter";
-import extractRouter from "./extractRouter";
 import downloadRouter from "./downloadRouter";
 import statusRouter from "./statusRouter";
+import extractedFieldsRouter from "./extractedFieldsRouter";
 
 // If you see a TS error for 'cors', run: npm i --save-dev @types/cors
 
@@ -32,7 +32,7 @@ app.use("/api/status", statusRouter);
 app.use("/api/pdf", pdfRouter);
 app.use("/api/audio", audioRouter);
 app.use("/api/transcription", transcriptionRouter);
-app.use("/api/extract", extractRouter);
+app.use("/api/extracted-fields", extractedFieldsRouter);
 app.use("/api/download", downloadRouter);
 
 // start the server

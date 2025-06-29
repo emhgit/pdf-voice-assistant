@@ -303,7 +303,7 @@ export const useTranscription = () => {
       const result = await response.json();
       setLoading(false);
       console.log("Transcription fetched successfully");
-      setData(result);
+      setData(result.transcription);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to fetch transcription"
@@ -324,11 +324,11 @@ export const useTranscription = () => {
         });
         const result = await response.json();
         setLoading(false);
-        console.log("Transcription updated successfully");
 
         if (result && result.transcription !== data) {
           setData(result.transcription);
         }
+        console.log("Transcription updated successfully");
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Failed to update transcription"
@@ -422,7 +422,7 @@ export const useExtractedFields = () => {
 
     try {
       setLoading(true);
-      const response = await apiFetch("/extract");
+      const response = await apiFetch("/extracted-fields");
       const result = await response.json();
       setLoading(false);
       setData(result.fields);
@@ -438,7 +438,7 @@ export const useExtractedFields = () => {
     async (fields: { name: string; value: string }[]) => {
       try {
         setLoading(true);
-        const response = await apiFetch("/transcription", {
+        const response = await apiFetch("/extracted-fields", {
           headers: {
             "Content-Type": "application/json",
           },
@@ -447,11 +447,11 @@ export const useExtractedFields = () => {
         });
         const result = await response.json();
         setLoading(false);
-        console.log("Extracted fields updated successfully");
 
         if (result && result.fields !== data) {
           setData(result.fields);
         }
+        console.log("Extracted fields updated successfully");
       } catch (err) {
         setError(
           err instanceof Error

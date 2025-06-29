@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useAppContext } from "../../context/AppContext";
 import { useWebSocketContext } from "../../context/WebSocketContext";
 import useDebounce from "../../hooks/useDebounce";
@@ -14,19 +14,29 @@ const ExtractedFieldsDisplay = () => {
     updateExtractedFields,
   } = useAppContext();
   const { status, data, error } = useWebSocketContext();
-  const debouncedExtractedFields = useDebounce(extractedFields, 2000);
+
+  // Track if the change is user-initiated
+  const isUserChange = useRef(false);
+  const userExtractedFields = useRef(extractedFields);
+
+  // Only debounce user changes, not WebSocket updates
+  const debouncedUserExtractedFields = useDebounce(
+    isUserChange.current ? userExtractedFields.current : null,
+    2000
+  );
 
   useEffect(() => {
-    if (debouncedExtractedFields) {
-      updateExtractedFields(debouncedExtractedFields);
+    if (debouncedUserExtractedFields && isUserChange.current) {
+      updateExtractedFields(debouncedUserExtractedFields);
+      isUserChange.current = false;
     }
-  }, [debouncedExtractedFields, updateExtractedFields]);
-
+  }, [debouncedUserExtractedFields, updateExtractedFields]);
   // Handle WebSocket status updates
   useEffect(() => {
     if (status === "complete") {
       setExtractedFields(data.extractedFields);
       setExtractedFieldsLoading(false);
+      isUserChange.current = false;
     } else if (status === "extracting") {
       console.log("LLM Processing...");
       setExtractedFieldsLoading(true);
@@ -46,6 +56,8 @@ const ExtractedFieldsDisplay = () => {
       newFields[index] = { name, value };
       setExtractedFields(newFields);
     }
+    isUserChange.current = true;
+    userExtractedFields.current = newFields;
   };
 
   return (
