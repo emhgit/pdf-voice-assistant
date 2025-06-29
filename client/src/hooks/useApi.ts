@@ -312,6 +312,27 @@ export const useTranscription = () => {
     }
   }, [setLoading, setData, setError]);
 
+  const updateTranscription = useCallback(
+    async (transcription: string) => {
+      try {
+        setLoading(true);
+        const response = await apiFetch("/transcription", {
+          method: "PUT",
+          body: JSON.stringify({ transcription }),
+        });
+        const result = await response.json();
+        setLoading(false);
+        console.log("Transcription updated successfully");
+        setData(result);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to update transcription"
+        );
+      }
+    },
+    [setLoading, setData, setError]
+  );
+
   useEffect(() => {
     if (initialized) {
       fetchTranscription();
@@ -329,6 +350,7 @@ export const useTranscription = () => {
         : null,
     setTranscriptionError: setError,
     refetch: fetchTranscription,
+    updateTranscription,
   };
 };
 

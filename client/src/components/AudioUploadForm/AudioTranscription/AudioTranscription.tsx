@@ -10,6 +10,7 @@ const AudioTranscription = () => {
     setTranscriptionError,
     setTranscription,
     setTranscriptionLoading,
+    updateTranscription,
   } = useAppContext();
   const { status, data, error } = useWebSocketContext();
 
@@ -28,12 +29,32 @@ const AudioTranscription = () => {
     }
   }, [status]);
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // This function is intentionally left empty as the form is read-only.
+    try {
+      updateTranscription(e.target.value);
+    } catch (error) {
+      console.error("Error handling change:", error);
+      // setTranscriptionError("An error occurred while processing the change.");
+    }
+  };
+
   return (
-    <div>
+    <form>
       {transcriptionError && <p>Transcription error</p>}
       {transcriptionLoading && <p>Loading...</p>}
-      {transcription && <p>{transcription}</p>}
-    </div>
+      <input
+        type="text"
+        value={transcription}
+        readOnly
+        onChange={handleChange}
+        placeholder={
+          transcription
+            ? "Transcription complete"
+            : "Transcription in progress..."
+        }
+      />
+    </form>
   );
 };
 

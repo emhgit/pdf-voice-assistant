@@ -33,6 +33,7 @@ interface AppContextType {
   processTranscription: (audioBlob: Blob) => Promise<any>;
   refetchTranscription: () => void;
   setTranscription: (transcription: string) => void;
+  updateTranscription: (transcription: string) => void;
 
   // Extracted fields state
   extractedFields: { name: string; value: string }[] | null;
@@ -86,6 +87,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     setTranscriptionError,
     refetch: refetchTranscription,
     setTranscription,
+    updateTranscription,
   } = useTranscription();
   const { processTranscription } = useProcessTranscription();
 
@@ -130,6 +132,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     processTranscription,
     refetchTranscription,
     setTranscription,
+    updateTranscription,
 
     // Extracted fields
     extractedFields,
