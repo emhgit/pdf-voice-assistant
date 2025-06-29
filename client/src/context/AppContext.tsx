@@ -16,7 +16,6 @@ interface AppContextType {
   refetchPdf: () => void;
   setPdfFile: (file: File) => void;
   updatePdf: (file: File) => void;
-  pdfInitialized: boolean;
 
   // Audio state
   audioBlob: Blob | null;
@@ -71,7 +70,6 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     refetch: refetchPdf,
     setPdfFile,
     updatePdf,
-    initialized: pdfInitialized,
   } = usePdfFile();
   const { uploadPdf } = useUploadPdf();
 
@@ -125,7 +123,6 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     refetchPdf,
     setPdfFile,
     updatePdf,
-    pdfInitialized,
 
     // Audio
     audioBlob,

@@ -68,7 +68,7 @@ function useApiState<T>() {
     setState({
       data,
       status: Status.Success,
-      initialized: true,
+      initialized: false,
       errorMessage: undefined,
     });
   }, []);
@@ -102,8 +102,7 @@ function useApiState<T>() {
 
 // PDF related hooks
 export const usePdfFile = () => {
-  const { data, status, setLoading, setData, setError, initialized } =
-    useApiState<File>();
+  const { data, status, setLoading, setData, setError } = useApiState<File>();
 
   const fetchPdf = useCallback(async () => {
     if (!localStorage.getItem("sessionToken")) {
@@ -160,12 +159,10 @@ export const usePdfFile = () => {
   return {
     pdfFile: data,
     loading: status === Status.Loading,
-    error:
-      initialized && status === Status.Error ? "Failed to fetch PDF" : null,
+    error: status === Status.Error ? "Failed to fetch PDF" : null,
     refetch: fetchPdf,
     setPdfFile: setData,
     updatePdf,
-    initialized,
   };
 };
 
@@ -223,7 +220,7 @@ export const useAudioFile = () => {
   const { statusData } = useStatus();
 
   useEffect(() => {
-    if (statusData?.audioReady) {
+    if (statusData && statusData.audioReady) {
       setInitialized(true);
     }
   }, [statusData]);
@@ -294,7 +291,7 @@ export const useAudioFile = () => {
 };
 
 export const useUploadAudio = () => {
-  const { status, setLoading, setError } = useApiState<Blob>();
+  const { status, setLoading, setError, setInitialized } = useApiState<Blob>();
 
   const uploadAudio = useCallback(
     async (file: File) => {
@@ -309,6 +306,7 @@ export const useUploadAudio = () => {
         });
 
         const result = await response.json();
+        setInitialized(true);
         setLoading(false);
         console.log("Audio uploaded successfully");
         return result;
