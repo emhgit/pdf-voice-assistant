@@ -69,6 +69,7 @@ function useApiState<T>() {
       data,
       status: Status.Success,
       initialized: true,
+      errorMessage: undefined,
     });
   }, []);
 
@@ -317,13 +318,19 @@ export const useTranscription = () => {
       try {
         setLoading(true);
         const response = await apiFetch("/transcription", {
+          headers: {
+            "Content-Type": "application/json",
+          },
           method: "PUT",
           body: JSON.stringify({ transcription }),
         });
         const result = await response.json();
         setLoading(false);
         console.log("Transcription updated successfully");
-        setData(result);
+
+        if (result && result.transcription !== data.transcription) {
+          setData(result.transcription);
+        }
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Failed to update transcription"

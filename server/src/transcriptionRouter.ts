@@ -46,7 +46,6 @@ router.put(
       res.status(404).json({ error: "Transcription not found" });
       return;
     }
-
     // Update the transcription in the session store
     const { transcription } = req.body;
     if (transcription) {

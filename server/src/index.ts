@@ -25,6 +25,7 @@ app.use(limiter);
 
 //CORS Middleware
 app.use(cors());
+app.use(express.json()); // Parse JSON bodies
 
 // Register routers
 app.use("/api/status", statusRouter);
