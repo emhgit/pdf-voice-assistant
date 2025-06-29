@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useAppContext } from "../../../context/AppContext";
 import { useWebSocketContext } from "../../../context/WebSocketContext";
+import useDebounce from "../../../hooks/useDebounce";
 
 const AudioTranscription = () => {
   const {
@@ -13,6 +14,7 @@ const AudioTranscription = () => {
     updateTranscription,
   } = useAppContext();
   const { status, data, error } = useWebSocketContext();
+  const debouncedTranscription = useDebounce(transcription, 2000);
 
   // Handle WebSocket status updates
   useEffect(() => {
@@ -29,32 +31,24 @@ const AudioTranscription = () => {
     }
   }, [status]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // This function is intentionally left empty as the form is read-only.
-    try {
-      updateTranscription(e.target.value);
-    } catch (error) {
-      console.error("Error handling change:", error);
-      // setTranscriptionError("An error occurred while processing the change.");
+  useEffect(() => {
+    if (debouncedTranscription) {
+      updateTranscription(debouncedTranscription);
     }
+  }, [debouncedTranscription, updateTranscription]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTranscription(e.target.value);
   };
 
   return (
-    <form>
+    <div>
       {transcriptionError && <p>Transcription error</p>}
       {transcriptionLoading && <p>Loading...</p>}
-      <input
-        type="text"
-        value={transcription}
-        readOnly
-        onChange={handleChange}
-        placeholder={
-          transcription
-            ? "Transcription complete"
-            : "Transcription in progress..."
-        }
-      />
-    </form>
+      {transcription && (
+        <input type="text" value={transcription} onChange={handleChange} />
+      )}
+    </div>
   );
 };
 
