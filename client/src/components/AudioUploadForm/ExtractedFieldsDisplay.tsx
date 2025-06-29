@@ -14,13 +14,13 @@ const ExtractedFieldsDisplay = () => {
     updateExtractedFields,
   } = useAppContext();
   const { status, data, error } = useWebSocketContext();
-  const debouncedTranscription = useDebounce(extractedFields, 2000);
+  const debouncedExtractedFields = useDebounce(extractedFields, 2000);
 
   useEffect(() => {
-    if (debouncedTranscription) {
-      updateExtractedFields(debouncedTranscription);
+    if (debouncedExtractedFields) {
+      updateExtractedFields(debouncedExtractedFields);
     }
-  }, [debouncedTranscription, updateExtractedFields]);
+  }, [debouncedExtractedFields, updateExtractedFields]);
 
   // Handle WebSocket status updates
   useEffect(() => {
@@ -39,9 +39,20 @@ const ExtractedFieldsDisplay = () => {
     }
   }, [status]);
 
+  const handleChange = (index: number, name: string, value: string) => {
+    const newFields = extractedFields || [];
+    if (!newFields) return;
+    if (newFields[index]) {
+      newFields[index] = { name, value };
+      setExtractedFields(newFields);
+    }
+  };
+
   return (
     <div className="extracted-fields-display">
       <h2>Extracted Fields</h2>
+      {extractedFieldsLoading && <div>Loading...</div>}
+      {extractedFieldsError && <div>Error extracting fields.</div>}
       {extractedFields && extractedFields.length > 0 ? (
         <table>
           <thead>
@@ -54,7 +65,15 @@ const ExtractedFieldsDisplay = () => {
             {extractedFields.map((field, index) => (
               <tr key={index}>
                 <th>{field.name}</th>
-                <td>{field.value}</td>
+                <td>
+                  <input
+                    type="text"
+                    value={field.value}
+                    onChange={(e) =>
+                      handleChange(index, field.name, e.target.value)
+                    }
+                  />
+                </td>
               </tr>
             ))}
           </tbody>
@@ -62,8 +81,6 @@ const ExtractedFieldsDisplay = () => {
       ) : (
         <p>No extracted fields available.</p>
       )}
-      {extractedFieldsLoading && <div>Loading...</div>}
-      {extractedFieldsError && <div>Error extracting fields.</div>}
     </div>
   );
 };
