@@ -42,12 +42,13 @@ const PdfUploadForm = () => {
     e.preventDefault();
     if (!pdfFile) return;
     try {
-      let pdfUploadFormResponse;
       if (pdfInitialized) {
         // If the PDF is already initialized, we update it
-        pdfUploadFormResponse = await updatePdf(pdfFile);
+        updatePdf(pdfFile);
       } else {
-        pdfUploadFormResponse = await uploadPdf(pdfFile);
+        let pdfUploadFormResponse: PdfUploadFormResponse = await uploadPdf(
+          pdfFile
+        );
         if (pdfUploadFormResponse?.sessionId) {
           setSessionToken(pdfUploadFormResponse.sessionId);
         }
