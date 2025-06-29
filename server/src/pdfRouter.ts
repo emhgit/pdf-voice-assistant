@@ -112,6 +112,7 @@ router.get(
 router.put(
   "/",
   validateSessionId,
+  upload.single("pdf"),
   (req: express.Request, res: express.Response) => {
     const sessionToken = req.sessionToken;
     if (!sessionToken) {
@@ -124,9 +125,15 @@ router.put(
       return;
     }
     // Update the PDF buffer in the session store
-    session.pdfBuffer =
-      (req as MulterRequest).file?.buffer || session.pdfBuffer;
-    session.pdfReady = true;
+    const file = (req as MulterRequest).file;
+    if (file) {
+      session.pdfBuffer = file.buffer;
+      session.pdfReady = true;
+    } else {
+      res.status(400).json({ error: "No pdf file uploaded" });
+      return;
+    }
+
     res.status(200).json({ message: "PDF updated successfully" });
   }
 );

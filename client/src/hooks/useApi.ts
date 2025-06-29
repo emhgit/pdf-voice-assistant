@@ -221,6 +221,32 @@ export const useAudioFile = () => {
     }
   }, [setLoading, setData, setError]);
 
+  const updateAudio = useCallback(
+    async (blob: Blob) => {
+      try {
+        setLoading(true);
+        const formData = new FormData();
+        const file = new File([blob], "recording.webm", { type: "audio/webm" });
+        formData.append("audio", file, "audio.webm");
+
+        const response = await apiFetch("/audio", {
+          method: "PUT",
+          body: formData,
+        });
+        const result = await response.json();
+        setLoading(false);
+
+        if (result && result.audioBlob !== data) {
+          setData(result.audioBlob);
+        }
+        console.log("Audio updated successfully");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to update audio");
+      }
+    },
+    [setLoading, setData, setError]
+  );
+
   useEffect(() => {
     if (initialized) {
       fetchAudio();
@@ -235,6 +261,7 @@ export const useAudioFile = () => {
       initialized && status === Status.Error ? "Failed to fetch audio" : null,
     refetch: fetchAudio,
     setAudioBlob: setData,
+    updateAudio,
   };
 };
 

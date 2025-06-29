@@ -25,6 +25,20 @@ export const sessionStore = new Map<
   }
 >();
 
+// Test sessoion data
+sessionStore.set("test-session", {
+  pdfBuffer: new Buffer(0),
+  pdfFields: [{ name: "Name", type: "PDFTextField", isEmpty: true }],
+  audioBuffer: new Buffer(0), // Empty buffer for testing
+  transcription: undefined,
+  extractedFields: [],
+  pdfReady: true,
+  audioReady: true,
+  transcriptionReady: true,
+  extractedFieldsReady: false,
+});
+console.log("Session store initialized with test session data.");
+
 const wss = new WebSocketServer({ port: 2025 });
 
 export const websocketSessions = new Map<string, WebSocket>();

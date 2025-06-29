@@ -23,6 +23,7 @@ interface AppContextType {
   uploadAudio: (file: File) => Promise<any>;
   refetchAudio: () => void;
   setAudioBlob: (blob: Blob) => void;
+  updateAudio: (blob: Blob) => void;
 
   // Transcription state
   transcription: string | null;
@@ -76,6 +77,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     error: audioError,
     refetch: refetchAudio,
     setAudioBlob,
+    updateAudio,
   } = useAudioFile();
   const { uploadAudio } = useUploadAudio();
 
@@ -124,6 +126,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     uploadAudio,
     refetchAudio,
     setAudioBlob,
+    updateAudio,
 
     // Transcription
     transcription,

@@ -134,6 +134,7 @@ async function processAudioWithWebSocketUpdates(sessionToken: string) {
 router.put(
   "/",
   validateSessionId,
+  upload.single("audio"),
   (req: express.Request, res: express.Response) => {
     const sessionToken = req.sessionToken;
     if (!sessionToken) {
@@ -158,9 +159,10 @@ router.put(
 
     res.status(200).json({
       message: "Audio updated succesfully, processing started",
-      transcription: session.transcription,
-      extractedFields: session.extractedFields,
     });
+
+    // Start async workflow
+    processAudioWithWebSocketUpdates(sessionToken);
   }
 );
 
