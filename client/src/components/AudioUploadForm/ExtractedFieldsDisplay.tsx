@@ -11,17 +11,16 @@ const ExtractedFieldsDisplay = () => {
     setExtractedFieldsLoading,
     extractedFieldsError,
     setExtractedFieldsError,
+    updateExtractedFields,
   } = useAppContext();
   const { status, data, error } = useWebSocketContext();
   const debouncedTranscription = useDebounce(extractedFields, 2000);
 
-  /*
   useEffect(() => {
     if (debouncedTranscription) {
       updateExtractedFields(debouncedTranscription);
     }
   }, [debouncedTranscription, updateExtractedFields]);
-*/
 
   // Handle WebSocket status updates
   useEffect(() => {
@@ -44,13 +43,22 @@ const ExtractedFieldsDisplay = () => {
     <div className="extracted-fields-display">
       <h2>Extracted Fields</h2>
       {extractedFields && extractedFields.length > 0 ? (
-        <ul>
-          {extractedFields.map((field, index) => (
-            <li key={index}>
-              <strong>{field.name}:</strong> {field.value}
-            </li>
-          ))}
-        </ul>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            {extractedFields.map((field, index) => (
+              <tr key={index}>
+                <th>{field.name}</th>
+                <td>{field.value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       ) : (
         <p>No extracted fields available.</p>
       )}
