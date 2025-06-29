@@ -282,7 +282,7 @@ export const useTranscription = () => {
     setError,
     initialized,
     setInitialized,
-  } = useApiState<any>();
+  } = useApiState<string>();
 
   const { statusData } = useStatus();
 
@@ -294,7 +294,6 @@ export const useTranscription = () => {
 
   const fetchTranscription = useCallback(async () => {
     if (!localStorage.getItem("sessionToken")) {
-      setData(null);
       return;
     }
 
@@ -305,7 +304,6 @@ export const useTranscription = () => {
       setLoading(false);
       console.log("Transcription fetched successfully");
       setData(result);
-      console.log("Transcription data:", result);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to fetch transcription"
@@ -328,7 +326,7 @@ export const useTranscription = () => {
         setLoading(false);
         console.log("Transcription updated successfully");
 
-        if (result && result.transcription !== data.transcription) {
+        if (result && result.transcription !== data) {
           setData(result.transcription);
         }
       } catch (err) {
@@ -436,6 +434,35 @@ export const useExtractedFields = () => {
     }
   }, [setLoading, setData, setError]);
 
+  const updateExtractedFields = useCallback(
+    async (fields: { name: string; value: string }[]) => {
+      try {
+        setLoading(true);
+        const response = await apiFetch("/transcription", {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: "PUT",
+          body: JSON.stringify({ fields }),
+        });
+        const result = await response.json();
+        setLoading(false);
+        console.log("Extracted fields updated successfully");
+
+        if (result && result.fields !== data) {
+          setData(result.fields);
+        }
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to update extracted fields"
+        );
+      }
+    },
+    [setLoading, setData, setError]
+  );
+
   useEffect(() => {
     if (initialized) {
       fetchExtractedFields();
@@ -451,6 +478,7 @@ export const useExtractedFields = () => {
     extractedFieldsError:
       status === Status.Error ? "Failed to fetch extracted fields" : null,
     refetchExtractedFields: fetchExtractedFields,
+    updateExtractedFields,
   };
 };
 

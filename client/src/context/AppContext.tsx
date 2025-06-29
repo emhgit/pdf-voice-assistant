@@ -25,7 +25,7 @@ interface AppContextType {
   setAudioBlob: (blob: Blob) => void;
 
   // Transcription state
-  transcription: string;
+  transcription: string | null;
   transcriptionLoading: boolean;
   setTranscriptionLoading: (loading: boolean) => void;
   transcriptionError: string | null;
@@ -43,6 +43,7 @@ interface AppContextType {
   setExtractedFieldsLoading: (loading: boolean) => void;
   setExtractedFieldsError: (error: string) => void;
   refetchExtractedFields: () => void;
+  updateExtractedFields: (fields: { name: string; value: string }[]) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -100,6 +101,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     setExtractedFieldsLoading,
     setExtractedFieldsError,
     refetchExtractedFields,
+    updateExtractedFields,
   } = useExtractedFields();
 
   const value: AppContextType = {
@@ -142,6 +144,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     extractedFieldsError,
     setExtractedFieldsError,
     refetchExtractedFields,
+    updateExtractedFields,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

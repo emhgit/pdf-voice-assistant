@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useAppContext } from "../../context/AppContext";
 import { useWebSocketContext } from "../../context/WebSocketContext";
+import useDebounce from "../../hooks/useDebounce";
 
 const ExtractedFieldsDisplay = () => {
   const {
@@ -12,6 +13,15 @@ const ExtractedFieldsDisplay = () => {
     setExtractedFieldsError,
   } = useAppContext();
   const { status, data, error } = useWebSocketContext();
+  const debouncedTranscription = useDebounce(extractedFields, 2000);
+
+  /*
+  useEffect(() => {
+    if (debouncedTranscription) {
+      updateExtractedFields(debouncedTranscription);
+    }
+  }, [debouncedTranscription, updateExtractedFields]);
+*/
 
   // Handle WebSocket status updates
   useEffect(() => {
