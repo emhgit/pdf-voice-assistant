@@ -5,8 +5,15 @@ const MicRecorder = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const [audioURL, setAudioURL] = useState<string | null>(null);
-  const { audioBlob, audioLoading, audioError, uploadAudio, setAudioBlob } =
-    useAppContext();
+  const {
+    audioBlob,
+    audioLoading,
+    audioError,
+    uploadAudio,
+    setAudioBlob,
+    updateAudio,
+    audioInitialized,
+  } = useAppContext();
 
   useEffect(() => {
     if (!audioBlob) return;
@@ -31,13 +38,6 @@ const MicRecorder = () => {
       const url = URL.createObjectURL(blob);
       setAudioURL(url);
       setAudioBlob(blob);
-      try {
-        await uploadAudio(
-          new File([blob], "recording.webm", { type: "audio/webm" })
-        );
-      } catch (error) {
-        console.error("Error uploading audio:", error);
-      }
     };
     mediaRecorderRef.current = mediaRecorder;
     mediaRecorder.start();
@@ -45,6 +45,21 @@ const MicRecorder = () => {
 
   const handleEndBtnClick = () => {
     mediaRecorderRef.current?.stop();
+  };
+
+  const handleClick = async () => {
+    if (!audioBlob) return;
+    if (audioInitialized) {
+      updateAudio(audioBlob);
+    } else {
+      try {
+        await uploadAudio(
+          new File([audioBlob], "recording.webm", { type: "audio/webm" })
+        );
+      } catch (error) {
+        console.error("Error uploading audio:", error);
+      }
+    }
   };
 
   return (
@@ -72,6 +87,10 @@ const MicRecorder = () => {
           >
             End Recording
           </button>
+
+          <div>
+            <button onClick={handleClick}>Upload Recording</button>
+          </div>
         </div>
       </div>
     </div>
