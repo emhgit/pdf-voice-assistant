@@ -14,7 +14,10 @@ export const sessionStore = new Map<
   string,
   {
     pdfBuffer: Buffer | undefined;
-    pdfFields: { name: string; type: string; isEmpty: boolean }[] | undefined;
+    pdfFields:
+      | { name: string; type: string; value: string | null }[]
+      | undefined;
+    pdfText: string | undefined;
     audioBuffer: Buffer | undefined;
     transcription: string | undefined;
     extractedFields: Record<string, string>[];
@@ -25,10 +28,12 @@ export const sessionStore = new Map<
   }
 >();
 
+/*
 // Test sessoion data
 sessionStore.set("test-session", {
-  pdfBuffer: new Buffer(0),
-  pdfFields: [{ name: "Name", type: "PDFTextField", isEmpty: true }],
+  pdfBuffer: undefined,
+  pdfFields: [{ name: "Name", type: "PDFTextField", value: null }],
+  pdfText: undefined,
   audioBuffer: new Buffer(0), // Empty buffer for testing
   transcription: undefined,
   extractedFields: [],
@@ -38,6 +43,7 @@ sessionStore.set("test-session", {
   extractedFieldsReady: false,
 });
 console.log("Session store initialized with test session data.");
+*/
 
 const wss = new WebSocketServer({ port: 2025 });
 

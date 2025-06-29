@@ -1,6 +1,6 @@
 import express from "express";
 import crypto from "crypto";
-import { getPdfFields } from "./utils";
+import { getPdfFields, extractText } from "./utils";
 import type { PdfMetadata } from "../../shared/src/types";
 import { sessionStore, upload, MulterRequest } from "./shared";
 import { validateSessionId } from "./middleware";
@@ -32,6 +32,7 @@ router.post(
       sessionStore.set(sessionId, {
         pdfBuffer: file.buffer,
         pdfFields: undefined,
+        pdfText: undefined,
         audioBuffer: undefined,
         transcription: undefined,
         extractedFields: [],
@@ -58,16 +59,26 @@ router.post(
       });
 
       // Process PDF fields
-      const fields = await getPdfFields(file.buffer);
-      console.log("fields: ", fields);
-      const session = sessionStore.get(sessionId)!;
-      session.pdfFields = fields;
+      processPdf(sessionId);
     } catch (error) {
       console.error("Error processing PDF upload:", error);
       res.status(500).json({ error: "Failed to process PDF upload" });
     }
   }
 );
+
+const processPdf = async (sessionId: string) => {
+  const session = sessionStore.get(sessionId);
+  if (!session || !session.pdfBuffer) {
+    throw new Error("Session not found or PDF buffer is empty");
+  }
+  const fields = await getPdfFields(session.pdfBuffer!);
+  console.log("fields: ", fields);
+  session.pdfFields = fields;
+  const text = await extractText(new Uint8Array(session.pdfBuffer));
+  console.log("Extracted text:", text);
+  session.pdfText = text;
+};
 
 // GET / (PDF buffer download)
 router.get(
@@ -135,6 +146,33 @@ router.put(
     }
 
     res.status(200).json({ message: "PDF updated successfully" });
+  }
+);
+
+router.get(
+  "/text",
+  validateSessionId,
+  (req: express.Request, res: express.Response) => {
+    const sessionToken = req.sessionToken;
+    if (!sessionToken) {
+      res.status(401).json({ error: "No session token provided" });
+      return;
+    }
+    const session = sessionStore.get(sessionToken);
+    if (!session || !session.pdfBuffer) {
+      res.status(404).json({ error: "PDF Buffer not found" });
+      return;
+    }
+
+    extractText(new Uint8Array(session.pdfBuffer))
+      .then((text) => {
+        console.log(text);
+        res.status(200).json({ text });
+      })
+      .catch((error) => {
+        console.error("Error extracting text from PDF:", error);
+        res.status(500).json({ error: "Failed to extract text from PDF" });
+      });
   }
 );
 

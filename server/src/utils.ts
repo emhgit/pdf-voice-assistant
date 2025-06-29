@@ -7,32 +7,28 @@ export const getPdfFields = async (pdfBuffer: Buffer) => {
   const formFields = form.getFields().map((field) => {
     const name = field.getName();
     const type = field.constructor.name;
-    let value = "";
-    let isEmpty = true;
+    let value;
 
     // Try to get value for known field types
     if ("getText" in field) {
       value = (field as any).getText?.() ?? "";
-      isEmpty = !value;
     } else if ("isChecked" in field) {
       value = (field as any).isChecked?.() ? "checked" : "";
-      isEmpty = !(field as any).isChecked?.();
     } else if ("getOptions" in field) {
       value = (field as any).getSelected?.() ?? "";
-      isEmpty = !value;
     }
 
     return {
       name,
       type,
-      isEmpty,
+      value: value ?? null, // Ensure value is never undefined
     };
   });
   return formFields;
 };
 
 // use this function asynchronously to extract text from a PDF buffer
-async function extractText(pdfBuffer: Buffer) {
+export async function extractText(pdfBuffer: Uint8Array) {
   const pdf = await getDocument({ data: pdfBuffer }).promise;
   const textChunks: string[] = [];
 
