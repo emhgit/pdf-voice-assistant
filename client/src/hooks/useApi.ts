@@ -125,6 +125,31 @@ export const usePdfFile = () => {
     }
   }, [setLoading, setData, setError]);
 
+  const updatePdf = useCallback(
+    async (pdf: File) => {
+      try {
+        setLoading(true);
+        const formData = new FormData();
+        formData.append("pdf", pdf, "document.pdf");
+
+        const response = await apiFetch("/pdf", {
+          method: "PUT",
+          body: formData,
+        });
+        const result = await response.json();
+        setLoading(false);
+
+        if (result.message) {
+          setData(pdf);
+        }
+        console.log("PDF updated successfully");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to update PDF");
+      }
+    },
+    [setLoading, setData, setError]
+  );
+
   useEffect(() => {
     if (localStorage.getItem("sessionToken")) {
       fetchPdf();
@@ -139,6 +164,8 @@ export const usePdfFile = () => {
       initialized && status === Status.Error ? "Failed to fetch PDF" : null,
     refetch: fetchPdf,
     setPdfFile: setData,
+    updatePdf,
+    initialized,
   };
 };
 
@@ -236,8 +263,8 @@ export const useAudioFile = () => {
         const result = await response.json();
         setLoading(false);
 
-        if (result && result.audioBlob !== data) {
-          setData(result.audioBlob);
+        if (result && result.message) {
+          setData(blob);
         }
         console.log("Audio updated successfully");
       } catch (err) {
@@ -262,6 +289,7 @@ export const useAudioFile = () => {
     refetch: fetchAudio,
     setAudioBlob: setData,
     updateAudio,
+    initialized,
   };
 };
 

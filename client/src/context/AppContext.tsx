@@ -15,6 +15,8 @@ interface AppContextType {
   uploadPdf: (file: File) => Promise<any>;
   refetchPdf: () => void;
   setPdfFile: (file: File) => void;
+  updatePdf: (file: File) => void;
+  pdfInitialized: boolean;
 
   // Audio state
   audioBlob: Blob | null;
@@ -24,6 +26,7 @@ interface AppContextType {
   refetchAudio: () => void;
   setAudioBlob: (blob: Blob) => void;
   updateAudio: (blob: Blob) => void;
+  audioInitialized: boolean;
 
   // Transcription state
   transcription: string | null;
@@ -67,6 +70,8 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     error: pdfError,
     refetch: refetchPdf,
     setPdfFile,
+    updatePdf,
+    initialized: pdfInitialized,
   } = usePdfFile();
   const { uploadPdf } = useUploadPdf();
 
@@ -78,6 +83,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     refetch: refetchAudio,
     setAudioBlob,
     updateAudio,
+    initialized: audioInitialized,
   } = useAudioFile();
   const { uploadAudio } = useUploadAudio();
 
@@ -118,6 +124,8 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     uploadPdf,
     refetchPdf,
     setPdfFile,
+    updatePdf,
+    pdfInitialized,
 
     // Audio
     audioBlob,
@@ -127,6 +135,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     refetchAudio,
     setAudioBlob,
     updateAudio,
+    audioInitialized,
 
     // Transcription
     transcription,

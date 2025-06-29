@@ -10,8 +10,15 @@ const PdfUploadForm = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const { setSessionToken } = useAppContext();
   const { submitted, setSubmitted } = useSubmitted();
-  const { pdfFile, pdfLoading, pdfError, uploadPdf, setPdfFile } =
-    useAppContext();
+  const {
+    pdfFile,
+    pdfLoading,
+    pdfError,
+    uploadPdf,
+    setPdfFile,
+    pdfInitialized,
+    updatePdf,
+  } = useAppContext();
   const { connected } = useWebSocketContext();
 
   useEffect(() => {
@@ -35,11 +42,15 @@ const PdfUploadForm = () => {
     e.preventDefault();
     if (!pdfFile) return;
     try {
-      const pdfUploadFormResponse: PdfUploadFormResponse = await uploadPdf(
-        pdfFile
-      );
-      if (pdfUploadFormResponse?.sessionId) {
-        setSessionToken(pdfUploadFormResponse.sessionId);
+      let pdfUploadFormResponse;
+      if (pdfInitialized) {
+        // If the PDF is already initialized, we update it
+        pdfUploadFormResponse = await updatePdf(pdfFile);
+      } else {
+        pdfUploadFormResponse = await uploadPdf(pdfFile);
+        if (pdfUploadFormResponse?.sessionId) {
+          setSessionToken(pdfUploadFormResponse.sessionId);
+        }
       }
       // Optionally refetch or update state here
       setSubmitted(true);
