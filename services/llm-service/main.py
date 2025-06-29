@@ -1,6 +1,6 @@
 import json
 import os
-from typing import List, Dict, Any
+from typing import List, Dict, Any, TypedDict
 import ollama
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,10 +16,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class PdfField(TypedDict):
+    name: str
+    type: str
+    value: str
+
 class ExtractionRequest:
-    def __init__(self, transcription: str, pdf_field_names: List[str]):
+    def __init__(self, transcription: str, pdf_fields: List[PdfField], pdf_text: str):
         self.transcription = transcription
-        self.pdf_field_names = pdf_field_names
+        self.pdf_fields = pdf_fields
+        self.pdf_text = pdf_text
     
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'ExtractionRequest':
@@ -31,11 +37,26 @@ class ExtractionRequest:
         if not isinstance(transcription, str):
             raise ValueError("transcription must be a string")
         
-        pdf_field_names = data.get("pdf_field_names")
-        if not isinstance(pdf_field_names, list):
-            raise ValueError("pdf_field_names must be a list")
+        pdf_fields = data.get("pdf_fields")
+        if not isinstance(pdf_fields, list):
+            raise ValueError("pdf_fields must be a list")
         
-        return cls(transcription=transcription, pdf_field_names=pdf_field_names)
+        # Validate each field in the list
+        validated_fields = []
+        for field in pdf_fields:
+            if not isinstance(field, dict):
+                raise ValueError("Each pdf_field must be a dictionary")
+            if "name" not in field or "type" not in field or "value" not in field:
+                raise ValueError("Each pdf_field must have 'name', 'type', and 'value' properties")
+            if not isinstance(field["name"], str) or not isinstance(field["type"], str) or not isinstance(field["value"], str):
+                raise ValueError("pdf_field 'name', 'type', and 'value' must be strings")
+            validated_fields.append(field)
+        
+        pdf_text = data.get("pdf_text")
+        if not isinstance(pdf_text, str):
+            raise ValueError("pdf_text must be a string")
+        
+        return cls(transcription=transcription, pdf_fields=validated_fields, pdf_text=pdf_text)
 
 class ExtractionResponse:
     def __init__(self, extracted_fields: Dict[str, str]):
@@ -47,43 +68,53 @@ class ExtractionResponse:
 
 def load_prompt_template() -> str:
     """Load the prompt template from file."""
-    prompt_path = os.path.join(os.path.dirname(__file__), "prompts", "extract_fields.txt")
+    prompt_path = os.path.join(os.path.dirname(__file__), "prompts", "extract_fields_1.txt")
     try:
         with open(prompt_path, "r", encoding="utf-8") as f:
             return f.read().strip()
     except FileNotFoundError:
         # Fallback to inline prompt if file not found
-        return """Extract structured data from the following transcription to fill out a PDF form.
-Return ONLY a JSON object where each key is a PDF field name and the value is the extracted data.
-Use this format: {{"field_name": "value"}}.
+        return """As an intelligent PDF form assistant, your goal is to accurately extract and structure data from a user's spoken transcription to fill out a PDF form. You must interpret the user's natural language input, adapting to potentially dynamic or non-standard form field names, and provide the extracted data in a precise JSON format.
 
-Transcription: "{transcription}"
+**Instructions:**
 
-PDF Field Names: {pdf_field_names}
+1.  **Analyze User Intent:** Carefully read the `Transcription` to understand the user's intention for filling the form fields.
+2.  **Contextual Mapping:** Use the `PDF Field Names` and `PDF Text` as context to semantically match the spoken information to the appropriate form fields. Prioritize direct matches, then infer based on common form conventions.
+3.  **Strict JSON Output:** Return ONLY a JSON object. Each key in the JSON object MUST correspond exactly to a `PDF Field Name` provided.
+4.  **Value Extraction:** The value for each key MUST be the extracted data from the `Transcription`.
+5.  **Date Format:** All extracted dates MUST be formatted as `mm/dd/yyyy`.
+6.  **Unmatched Fields:** If a `PDF Field Name` has no corresponding, relevant information in the `Transcription`, its value in the JSON MUST be an empty string (`""`).
+7.  **Irrelevant Information:** Ignore any information in the `Transcription` that is not relevant to the provided `PDF Field Names` or is redundant.
 
-Rules:
-- Ignore irrelevant or repeated information.
-- Match values to the closest field name semantically.
-- Return empty ("") for unmatched fields."""
+---
+
+**Input Data:**
+
+* **Transcription:** "{transcription}"
+* **PDF Fields:** {pdf_fields}
+* **PDF text:** {pdf_text}
+
+---
+
+**Desired Output Format (JSON):**
+
+Use this format: {{"field_name": "value"}} for each field.
+"""
     
 
-def call_llm(transcription: str, pdf_field_names: List[str]) -> Dict[str, str]:
+def call_llm(transcription: str, pdf_fields: List[PdfField], pdf_text: str) -> Dict[str, str]:
     """Call the LLM to extract structured data from transcription."""
-    # print(f"Starting call_llm with transcription: {transcription[:100]}...")  # Debug
-    # print(f"PDF field names: {pdf_field_names}")  # Debug
-    
+
     prompt_template = load_prompt_template()
-    # print(f"Loaded prompt template: {prompt_template}")  # <-- Add this
+    
     
     # Format the prompt with the provided data
-    # print("About to format prompt...")  # Debug
     prompt = prompt_template.format(
         transcription=transcription,
-        pdf_field_names=json.dumps(pdf_field_names)
+        pdf_fields=json.dumps(pdf_fields, indent=2),  # Use indent for better readability
+        pdf_text=pdf_text  
     )
-    # print(f"prompt: {prompt}")
     
-    # print("About to call ollama.generate...")  # Debug
     try:
         response = ollama.generate(
             model="mistral",
@@ -104,7 +135,8 @@ def call_llm(transcription: str, pdf_field_names: List[str]) -> Dict[str, str]:
             extracted_data = json.loads(response_text)
             # Ensure all field names are present in the response
             result = {}
-            for field_name in pdf_field_names:
+            for field in pdf_fields:
+                field_name = field["name"]
                 # Handle case where field name might be in different case
                 matching_key = next(
                     (key for key in extracted_data.keys() if key.lower() == field_name.lower()),
@@ -139,23 +171,11 @@ async def extract_fields(request_data: Dict[str, Any]):
     try:
         # Parse the request data manually
         request = ExtractionRequest.from_dict(request_data)
-        extracted_fields = call_llm(request.transcription, request.pdf_field_names)
+        extracted_fields = call_llm(request.transcription, request.pdf_fields, request.pdf_text)
         response = ExtractionResponse(extracted_fields=extracted_fields)
         return response.to_dict()
     except ValueError as e:
         raise HTTPException(status_code=400, detail=f"Invalid request data: {str(e)}")
-    except Exception as e:
-        print(f"Error: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
-
-@app.get("/extract")
-async def extract_fields_get(transcription: str, pdf_field_names: str):
-    """GET endpoint for extracting fields (for testing)."""
-    try:
-        # Parse comma-separated field names
-        field_names = [name.strip() for name in pdf_field_names.split(",")]
-        extracted_fields = call_llm(transcription, field_names)
-        return {"extracted_fields": extracted_fields}
     except Exception as e:
         print(f"Error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")

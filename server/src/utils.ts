@@ -1,7 +1,8 @@
 import { PDFDocument } from "pdf-lib";
 import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
+import { PdfField } from "../../shared/src/types";
 
-export const getPdfFields = async (pdfBuffer: Buffer) => {
+export const getPdfFields = async (pdfBuffer: Buffer): Promise<PdfField[]> => {
   const pdfDoc = await PDFDocument.load(pdfBuffer);
   const form = pdfDoc.getForm();
   const formFields = form.getFields().map((field) => {
@@ -81,8 +82,9 @@ export const transcribeAudio = async (
 };
 
 export const getExtractedFields = async (
-  fields: string[],
-  transcription: string
+  fields: PdfField[],
+  transcription: string,
+  pdfText: string
 ): Promise<{ name: string; value: string }[]> => {
   try {
     console.log("Extracting fields:", fields);
@@ -91,7 +93,11 @@ export const getExtractedFields = async (
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ pdf_field_names: fields, transcription }),
+      body: JSON.stringify({
+        pdf_field_names: fields,
+        transcription,
+        pdf_text: pdfText,
+      }),
     });
 
     if (!response.ok) {

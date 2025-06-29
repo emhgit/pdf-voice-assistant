@@ -106,8 +106,9 @@ async function processAudioWithWebSocketUpdates(sessionToken: string) {
     }
 
     session.extractedFields = await getExtractedFields(
-      session.pdfFields.map((f) => f.name),
-      session.transcription!
+      session.pdfFields,
+      session.transcription!,
+      session.pdfText!
     );
     session.extractedFieldsReady = true;
 

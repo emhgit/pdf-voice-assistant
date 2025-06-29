@@ -6,7 +6,10 @@ Transcription: "{transcription}"
 
 PDF Field Names: {pdf_field_names}
 
+PDF text: {pdf_text}
+
 Rules:
 - Ignore irrelevant or repeated information.
 - Match values to the closest field name semantically.
 - Return empty ("") for unmatched fields. 
+- Output dates in mm/dd/yyyy format

@@ -1,5 +1,6 @@
 import { Request } from "express";
 import WebSocket, { WebSocketServer } from "ws";
+import { PdfField } from "../../shared/src/types";
 
 // Use Express.Multer.File for Multer file typing
 export type MulterFile = Express.Multer.File;
@@ -14,9 +15,7 @@ export const sessionStore = new Map<
   string,
   {
     pdfBuffer: Buffer | undefined;
-    pdfFields:
-      | { name: string; type: string; value: string | null }[]
-      | undefined;
+    pdfFields: PdfField[] | undefined;
     pdfText: string | undefined;
     audioBuffer: Buffer | undefined;
     transcription: string | undefined;

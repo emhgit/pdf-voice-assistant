@@ -13,8 +13,8 @@ export enum pdfFieldTypes {
 
 export type PdfField = {
   name: string;
-  type: pdfFieldTypes;
-  isEmpty: boolean;
+  type: string;
+  value: string;
 };
 
 export type Transcription = {
