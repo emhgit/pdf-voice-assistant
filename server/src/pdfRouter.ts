@@ -109,4 +109,26 @@ router.get(
   }
 );
 
+router.put(
+  "/",
+  validateSessionId,
+  (req: express.Request, res: express.Response) => {
+    const sessionToken = req.sessionToken;
+    if (!sessionToken) {
+      res.status(401).json({ error: "No session token provided" });
+      return;
+    }
+    const session = sessionStore.get(sessionToken);
+    if (!session || !session.pdfBuffer) {
+      res.status(404).json({ error: "PDF not found" });
+      return;
+    }
+    // Update the PDF buffer in the session store
+    session.pdfBuffer =
+      (req as MulterRequest).file?.buffer || session.pdfBuffer;
+    session.pdfReady = true;
+    res.status(200).json({ message: "PDF updated successfully" });
+  }
+);
+
 export default router;

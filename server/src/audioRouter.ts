@@ -131,4 +131,37 @@ async function processAudioWithWebSocketUpdates(sessionToken: string) {
   }
 }
 
+router.put(
+  "/",
+  validateSessionId,
+  (req: express.Request, res: express.Response) => {
+    const sessionToken = req.sessionToken;
+    if (!sessionToken) {
+      res.status(401).json({ error: "No session token provided" });
+      return;
+    }
+    const session = sessionStore.get(sessionToken);
+    if (!session || !session.audioBuffer) {
+      res.status(404).json({ error: "Audio not found" });
+      return;
+    }
+
+    // Update the audio buffer in the session store
+    const file = (req as MulterRequest).file;
+    if (file) {
+      session.audioBuffer = file.buffer;
+      session.audioReady = true;
+    } else {
+      res.status(400).json({ error: "No audio file uploaded" });
+      return;
+    }
+
+    res.status(200).json({
+      message: "Audio updated succesfully, processing started",
+      transcription: session.transcription,
+      extractedFields: session.extractedFields,
+    });
+  }
+);
+
 export default router;

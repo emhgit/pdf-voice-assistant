@@ -14,24 +14,63 @@ declare global {
 const router = express.Router();
 
 // GET /api/transcription
-router.get("/", validateSessionId, (req: express.Request, res: express.Response) => {
-  const sessionToken = req.sessionToken;
-  if (!sessionToken) {
-    res.status(401).json({ error: "No session token provided" });
-    return;
+router.get(
+  "/",
+  validateSessionId,
+  (req: express.Request, res: express.Response) => {
+    const sessionToken = req.sessionToken;
+    if (!sessionToken) {
+      res.status(401).json({ error: "No session token provided" });
+      return;
+    }
+    const session = sessionStore.get(sessionToken);
+    if (!session || !session.transcription) {
+      res.status(404).json({ error: "Transcription not found" });
+      return;
+    }
+    res.status(200).json({ transcription: session.transcription });
   }
-  const session = sessionStore.get(sessionToken);
-  if (!session || !session.transcription) {
-    res.status(404).json({ error: "Transcription not found" });
-    return;
-  }
-  res.status(200).json({ transcription: session.transcription });
-});
+);
 
 // PUT /api/transcription (update transcription)
-router.put("/", validateSessionId, (req: express.Request, res: express.Response) => {
-  // Implement update logic here if needed
-  res.status(501).json({ error: "Not implemented" });
-});
+router.put(
+  "/",
+  validateSessionId,
+  (req: express.Request, res: express.Response) => {
+    // Implement update logic here if needed
+    res.status(501).json({ error: "Not implemented" });
+  }
+);
 
-export default router; 
+router.put(
+  "/",
+  validateSessionId,
+  async (req: express.Request, res: express.Response) => {
+    const sessionToken = req.sessionToken;
+    if (!sessionToken) {
+      res.status(401).json({ error: "No session token provided" });
+      return;
+    }
+    const session = sessionStore.get(sessionToken);
+    if (!session || !session.transcription) {
+      res.status(404).json({ error: "Transcription not found" });
+      return;
+    }
+
+    // Update the transcription in the session store
+    const { transcription } = req.body;
+    if (transcription) {
+      session.transcription = transcription;
+    } else {
+      res.status(400).json({ error: "No transcription provided" });
+      return;
+    }
+
+    res.status(200).json({
+      message: "Transcription updated successfully",
+      transcription: session.transcription,
+    });
+  }
+);
+
+export default router;
