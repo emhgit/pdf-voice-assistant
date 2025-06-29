@@ -32,16 +32,6 @@ router.get(
   }
 );
 
-// PUT /api/transcription (update transcription)
-router.put(
-  "/",
-  validateSessionId,
-  (req: express.Request, res: express.Response) => {
-    // Implement update logic here if needed
-    res.status(501).json({ error: "Not implemented" });
-  }
-);
-
 router.put(
   "/",
   validateSessionId,
